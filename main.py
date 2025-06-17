@@ -18,7 +18,6 @@ class region:
         for i in self.entity_encounters.keys():
             for j in range(self.entity_encounters[i]):
                 possibilities.append(i)
-
         for i in range(100 - len(possibilities)):
             possibilities.append(None)
         if randint(1, 3) == 1:
@@ -57,12 +56,12 @@ class campfire:
             2: "The fire is flickering.",
             1: "The embers smoulder.",
             0: "The coals are cold.",
-            -1: "The fire is dead."
+            -1: "The fire is dead.",
         }
         self.cookable = cookable
 
     def light_fire(self):
-        #lights fire at the start of the game
+        # lights fire at the start of the game
         if self.dead:
             self.firestatus = 2
             self.dead = False
@@ -73,7 +72,7 @@ class campfire:
             self.firestatus += 1
 
     def tick_fire(self):
-        # ureturns any cooked food
+        # returns any cooked food
         food = None
         if self.cooking != []:
             self.cooking[0][1] = self.cooking[0][1] - self.firestatus
@@ -117,8 +116,8 @@ class player:
 
         # generates the hunger bar
         for i in range(math.ceil(self.hunger / 10)):
-            self.hungerbar += "\U0001F356"
-
+            self.hungerbar += "\U0001f356"
+            
         # generates a message based on player temperature
         self.temperaturemessage = {
             5: "You feel hot.",
@@ -148,10 +147,10 @@ class player:
                 self.temperature = 0
         if self.temperature == 0:
             self.hp -= 2
-
+            
         # regenerates player health
         self.hp += 1
-
+        
         # updates player health based on hunger
         if self.hp > 100:
             self.hp = 100
@@ -160,17 +159,18 @@ class player:
         # returns message based on hunger
         if self.hunger <= 0:
             self.hunger = 0
-            hungermessage = "You are starving."
+            hungermessage = "Starvation sets in."
             self.hp -= 5
         else:
             hungermessage = ""
-
+            
         # updates hunger bar
         self.hungerbar = ""
         for i in range(math.ceil(self.hunger / 10)):
-            self.hungerbar += "\U0001F356"
+            self.hungerbar += "\U0001f356"
         for i in range(10 - math.ceil(self.hunger / 10)):
-            self.hungerbar += "\U0000274C"
+            self.hungerbar += "\U0000274c"
+            
         # returns all values
         return self.temperaturemessage[self.temperature], hungermessage
 
@@ -195,7 +195,7 @@ class player:
         if self.shield < 0:
             self.hp += self.shield
             self.shield = 0
-
+            
         # adds effects inflicted to the player's effects
         if opp_effects != {}:
             for i in opp_effects.keys():
@@ -208,6 +208,7 @@ class player:
                         )
 
     def tick(self):
+        
         # ticks all effects on the player, reducing the duration of all of them by 1, any effects with a duration of 0 are added to the remove list
         remove_list = []
         for i in self.effects.keys():
@@ -218,12 +219,12 @@ class player:
                 self.effects[i] -= 1
                 if self.effects[i] <= 0:
                     remove_list.append(i)
-
+                    
         # removes all effects on the remove list from the player's effects
         if remove_list != []:
             for i in remove_list:
                 self.effects.pop(i)
-
+                
         # transitions any damage not taken by shield to the player's health
         if self.shield < 0:
             self.hp -= self.shield
@@ -232,6 +233,7 @@ class player:
         self.hp = int(self.hp)
 
     def self_turn(self, shield, health, selfeffects):
+        
         # updates player's values
         self.hp += health
         if self.hp > 100:
@@ -244,6 +246,7 @@ class player:
 # class representing the map
 class map:
     def __init__(self, biomelist):
+        
         # inputs possible biomes, accepts a list of region() classes as an input
         self.biomelist = biomelist
 
@@ -278,7 +281,6 @@ class map:
             or direction == "n"
         ):
             self.playerlocation = (self.playerlocation[0], self.playerlocation[1] - 1)
-
         elif (
             direction == "down"
             or direction == "south"
@@ -286,7 +288,6 @@ class map:
             or direction == "s"
         ):
             self.playerlocation = (self.playerlocation[0], self.playerlocation[1] + 1)
-
         elif (
             direction == "left"
             or direction == "west"
@@ -294,7 +295,6 @@ class map:
             or direction == "w"
         ):
             self.playerlocation = (self.playerlocation[0] - 1, self.playerlocation[1])
-
         elif (
             direction == "right"
             or direction == "east"
@@ -302,14 +302,13 @@ class map:
             or direction == "e"
         ):
             self.playerlocation = (self.playerlocation[0] + 1, self.playerlocation[1])
-
+            
         # generates the biome the player is on
         self.generatebiome(self.playerlocation)
-
+        
         # returns False if the player coordinates have not changed, returns True if the player coordinates have changed
         if previouscoords == self.playerlocation:
             return False
-
         else:
             return True
 
@@ -371,7 +370,7 @@ class move:
         self.weapon = attachedweapon  # weapon the move is attached to
 
 
-# claSs representing the enemy
+# class representing the enemy
 class enemy:
     def __init__(self, hp, moves, move_pattern, drops, drop_number):
         self.hp = hp  # health
@@ -403,8 +402,8 @@ class enemy:
         if self.shield < 0:
             self.hp += self.shield
             self.shield = 0
-
-        # updates effects based on the effects inflicted by the move
+            
+        # updates effects based on the effects inflicted by the mov
         if opp_effect != {}:
             for i in opp_effect.keys():
                 if opp_effect[i] != None:
@@ -430,7 +429,7 @@ class enemy:
         # updates effects based on the move
         for i in moveselect.selfeffects.keys():
             self.effects[i] = moveselect.selfeffects[i]
-
+        
         # returns all values of the move
         return (
             moveselect.dmg,
@@ -453,12 +452,12 @@ class enemy:
                 self.effects[i] -= 1
                 if self.effects[i] <= 0:
                     remove_list.append(i)
-
+        
         # removes all effect values in remove_list
         if remove_list != []:
             for i in remove_list:
                 self.effects.pop(i)
-
+        
         # transfers any extra damage not absorbed by shield to health
         if self.shield <= 0:
             self.hp += self.shield
@@ -1199,6 +1198,7 @@ food_values = {
     "elk meat": 30,
     "cooked elk meat": 60,
 }
+
 # dictionary of cookable foods and their cooking times
 # if a food is not in the dictionary, it will return "charred mess" with a cooking time of 5
 cook_values = {"wolf meat": 20, "deer meat": 30, "rotting meat": 10, "elk meat": 40}
@@ -1250,7 +1250,7 @@ while Player.hp > 0:
             possible_moves.append(moves["defensive_stance"])
             for i in range(len(possible_moves)):
                 move_select_ui[str(i)] = possible_moves[i - 1]
-
+            
             # generates move selection UI
             for i in move_select_ui.keys():
                 print(
@@ -1258,7 +1258,7 @@ while Player.hp > 0:
                 )  # name of move and key to press to select move
                 d, s, h, se, e = move_select_ui[i].tick()  # pulls the move's values
                 print(
-                    f"|   \U00002694 {d} | \U0001F6E1 {s} | \U00002764 {h}"
+                    f"|   \U00002694 {d} | \U0001f6e1 {s} | \U00002764 {h}"
                 )  # displays the move's damage, shield, and health gain
 
                 # displays self applied effects by the move
@@ -1267,7 +1267,7 @@ while Player.hp > 0:
                     for i in se:
                         print(f"|  {i}: {se[i]} turns")
                         print(f"|  ({effects[i.split()[0]].description})")
-
+                
                 # display effects applied to opponents by the move
                 if e != {}:
                     print("|  --ENEMY--")
@@ -1278,18 +1278,18 @@ while Player.hp > 0:
                             print(f"|  {i}: {e[i]} turns")
                         print(f"|  ({effects[i.split()[0]].description})")
                 print("L---->")
-
+                
             # lower status bar
-            print(f"|\U00002764: {Player.hp}|\U0001F6E1  {Player.shield} |")
+            print(f"|\U00002764: {Player.hp}|\U0001f6e1  {Player.shield} |")
             for i in Player.effects.keys():
                 print(f"{i} - {effects[i.split()[0]].description}")
-
+            
             # player move selection input
             move_input = input("move number >> ")
             while move_input not in move_select_ui.keys():
                 # asks for input again when input is invalid
                 move_input = input("move number >> ")
-
+            
             # pulls the details of selected move
             d, s, h, se, e = move_select_ui[move_input].tick()
 
@@ -1307,7 +1307,7 @@ while Player.hp > 0:
             if se != {}:
                 for i in se.keys():
                     print(f"You gain {i} for {se[i]} turns")
-
+            
             # displays effects inflicted on opponent
             if e != {}:
                 for i in e.keys():
@@ -1338,7 +1338,6 @@ while Player.hp > 0:
             if se != {}:
                 for i in se.keys():
                     print(f"{encounter_value} gains {i} for {se[i]} turns")
-
             if e != {}:
                 for i in e.keys():
                     if e[i] == None:
@@ -1366,10 +1365,10 @@ while Player.hp > 0:
                     input("Press anything to continue >> ")
                     os.system("cls" if os.name == "nt" else "clear")
                 encounter_done = True
+    
     # ends main game loop early if the player is dead from the encounter
     if Player.hp <= 0:
         break
-
     if first_turn == True:
         print()
         print("Type 'help' for list of commands and tutorial.\n")
@@ -1379,9 +1378,9 @@ while Player.hp > 0:
 
     # returns any finished cooking foods
     if cooked_food != None:
-        print(f"You retrieve {cooked_food} from the fire.")
+        print(f"You retrieve {cooked_food} from the fire.\n")
         Player.gain_object(cooked_food)
-
+    
     # updates player hp according to the temperature
     hungermessage, temperaturemessage = Player.tick_player(Fire.firestatus)
 
@@ -1399,23 +1398,25 @@ while Player.hp > 0:
     os.system("cls" if os.name == "nt" else "clear")
 
     # player command processing
-
+    
     # lights the fire
     if act.lower() == "light fire":
         if Fire.dead:
             Fire.light_fire()
-            print("The light from the fire spills through the forest, out into the dark.\n")
+            print(
+                "The light from the fire spills through the forest, out into the dark.\n"
+            )
         else:
             continue
     
-    #stokes the fire
+    # stokes the fire
     elif act.lower() == "stoke fire":
         if not Fire.dead:
             Fire.stoke_fire()
             print("You stoke the coals and the fire blazes.\n")
         else:
             continue
-
+    
     # returns random amount of items from biome loot pool
     elif act.lower() == "search":
         found_item = Map.map[Map.playerlocation].search_region()
@@ -1426,25 +1427,27 @@ while Player.hp > 0:
             for i in found_item:
                 Player.gain_object(i)
             print(f"You look around and find {', '.join(found_item)}.\n")
-
+    
     # displays player inventory
     elif act.lower() == "view inventory":
         print("Inventory:")
         for i in Player.inventory.keys():
             print(f"{Player.inventory[i]}x {i}")
         print()
-
+    
     # displays most recent cooking item
     elif act.lower() == "view cooking":
         if Fire.cooking == []:
             print("Nothing is cooking.")
         else:
-            print(f"{Fire.cooking[0][0]} will be ready in {Fire.cooking[0][1]} turns.\n")
-
+            print(
+                f"{Fire.cooking[0][0]} will be ready in {Fire.cooking[0][1]} turns.\n"
+            )
+    
     # displays all unlocked crafting recipes
     elif act.lower() == "view crafting recipes":
         if Player.inventory == {}:
-            print("There doesn't seem to be any crafting recipes evident.")
+            print("There doesn't seem to be any crafting recipes evident.\n")
         else:
             craftable_recipes = {}
 
@@ -1458,7 +1461,7 @@ while Player.hp > 0:
                 for j in craftable_recipes[i][0].keys():
                     materials_str += f"{craftable_recipes[i][0][j]} x {j}, "
                 print(f"{i}: {materials_str}")
-
+    
     # help and tutorial system
     elif act.lower() == "help":
         helping = True
@@ -1477,7 +1480,6 @@ while Player.hp > 0:
                 print("[Any other button]: Exit help")
                 help_mode = input("\n>> ")
                 os.system("cls" if os.name == "nt" else "clear")
-
             if help_mode == "1":
                 mechanical_helping = True
                 print("GAME MECHANICS\n")
@@ -1507,7 +1509,6 @@ while Player.hp > 0:
                         if "" in input("\n[Any key to go back]"):
                             help_mode = "1"
                             break
-
                     elif mechanic_help_mode == "2":
                         print("MATERIALS AND CRAFTING SYSTEM\n")
                         print(
@@ -1525,7 +1526,6 @@ while Player.hp > 0:
                         if "" in input("\n[Any key to go back]"):
                             help_mode = "1"
                             break
-
                     elif mechanic_help_mode == "3":
                         print("WEAPONS, COMBAT, MOVES, AND EFFECTS\n")
                         print(
@@ -1546,7 +1546,6 @@ while Player.hp > 0:
                         if "" in input("\n[Any key to go back]"):
                             help_mode = "1"
                             break
-
                     elif mechanic_help_mode == "4":
                         print("TEMPERATURE, CAMPFIRE, AND COOKING FOOD\n")
                         print(
@@ -1567,7 +1566,6 @@ while Player.hp > 0:
                         if "" in input("\n[Any key to go back]"):
                             help_mode = "1"
                             break
-
                     elif mechanic_help_mode == "5":
                         print("BIOMES, LOOT TABLES, AND ENCOUNTER VALUES\n")
                         print(
@@ -1586,10 +1584,8 @@ while Player.hp > 0:
                         if "" in input("\n[Any key to go back]"):
                             help_mode = "1"
                             break
-
                     else:
                         mechanical_helping = False
-
             elif help_mode == "2":
                 print("AVAILABLE COMMANDS\n")
                 print("{ stoke fire } - stokes the fire\n")
@@ -1611,17 +1607,15 @@ while Player.hp > 0:
                 )
                 if "" in input("\n[Any key to go back]"):
                     pass
-
             elif help_mode == "3":
                 print("TECHNICAL INFORMATION\n")
                 print("Version: 1.0.0\n")
                 print("Error reporting: ian.tang3@education.nsw.gov.au")
                 if "" in input("\n[Any key to go back]"):
                     pass
-
             else:
                 helping = False
-
+    
     # eats selected food if in food_values dict, otherwise, displays inedible message
     elif "eat" in act.lower().split(" ")[0]:
         act = act.replace("eat ", "")
@@ -1632,7 +1626,7 @@ while Player.hp > 0:
             print("This does not seem edible.")
         else:
             print("You can't seem to find that item.")
-
+    
     # cooks selected item, returning cooked (insert item name here) if in cook_values dict, otherwise, returns a charred mess
     elif "cook" in act.lower().split(" ")[0]:
         act = act.lower().replace("cook ", "")
@@ -1642,7 +1636,7 @@ while Player.hp > 0:
             print(f"You add {act} to the fire.")
         else:
             print("You can't seem to find that item.")
-
+            
     # moves player around the map, generating a biome if they haven't been there before
     elif "move" in act.lower().split(" ")[0]:
         act = act.lower().replace("move ", "")
@@ -1651,7 +1645,7 @@ while Player.hp > 0:
             print("You cannot move in that direction.")
         else:
             print(Map.map[Map.playerlocation].description)
-
+            
     # crafts an item if all materials present, otherwise, returns error statement
     elif "craft" in act.lower().split(" ")[0]:
         act = act.lower().replace("craft ", "")
@@ -1666,7 +1660,6 @@ while Player.hp > 0:
                         craftable = False
                 else:
                     craftable = False
-
             if craftable == True:
                 Player.gain_object(act)
                 for i in items[act].crafting_methods[0].keys():
@@ -1680,14 +1673,12 @@ while Player.hp > 0:
                 print("You don't seem to have enough materials...")
         else:
             print("That item does not exist.")
-    
     else:
         continue
-
+    
     # ends first turn
     first_turn = False
 
-
 # death screen
 os.system("cls" if os.name == "nt" else "clear")
-print("You have died.")
+print("The world fades.")
