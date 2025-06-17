@@ -1,8 +1,6 @@
 # Forest
 
-> **Author:** Ian Tang <ian.tang2@education.nsw.gov.au>
-
-> **Editor:** Jiayu Hu <jiayu.hu1@education.nsw.gov.au>
+> **Author:** Ian Tang <ian.tang2@education.nsw.gov.au>\n**Editor:** Jiayu Hu <jiayu.hu1@education.nsw.gov.au>
 
 A text-based post-apocalyptic survival game.
 
