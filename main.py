@@ -445,7 +445,7 @@ class enemy:
 
         # updates all effects and adds all effects with duration 0 to remove_list
         for i in self.effects.keys():
-            for n in range(int(i.split()[1])):
+            for n in range(int(i.split()[0])):
                 self.hp, self.shield, self.atkmult, dmg = i.split()[0].tick(
                     self.hp, self.shield, self.atkmult, 0, 0
                 )
