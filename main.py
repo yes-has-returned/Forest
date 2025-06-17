@@ -3,65 +3,68 @@ import math
 from random import choice, randint
 
 
-#class for each region or biome of a map, encompassing its information
+# class for each region or biome of a map, encompassing its information
 class region:
     def __init__(self, loot_table, description, name, entity_encounters):
-        #region values
+        # region values
         self.loot_table = loot_table
         self.description = description
         self.name = name
         self.entity_encounters = entity_encounters
 
     def tick_region(self):
-        #generates a regional encounter, returns None if nothing is encountered, otherwise returns a string representing an enemy
+        # generates a regional encounter, returns None if nothing is encountered, otherwise returns a string representing an enemy
         possibilities = []
         for i in self.entity_encounters.keys():
             for j in range(self.entity_encounters[i]):
                 possibilities.append(i)
 
-        for i in range(100-len(possibilities)):
+        for i in range(100 - len(possibilities)):
             possibilities.append(None)
-        if randint(1,3) == 1:
-            
+        if randint(1, 3) == 1:
+
             return choice(possibilities)
         else:
             return None
 
     def search_region(self):
-        #returns a series of possible found items
+        # returns a series of possible found items
         possibilities = []
         for i in self.loot_table.keys():
             for j in range(self.loot_table[i]):
                 possibilities.append(i)
-        for i in range(100-len(possibilities)):
+        for i in range(100 - len(possibilities)):
             possibilities.append(None)
         returned = []
-        for i in range(randint(1,5)):
+        for i in range(randint(1, 5)):
             returned.append(choice(possibilities))
         return returned
 
-#class representing the campfire
+
+# class representing the campfire
 class campfire:
     def __init__(self, cookable):
-        #campfire values
+        # campfire values
         self.firestatus = 0
         self.cooking = []
 
-        #campfire description at each stage
-        self.firestatusmessages = {5:"The fire is roaring.",
-                                   4:"The fire crackles merrily.",
-                                   3:"The fire wavers.",
-                                   2:"The fire flickers.",
-                                   1:"The embers smoulder.",
-                                   0:"The coals are cold."}
+        # campfire description at each stage
+        self.firestatusmessages = {
+            5: "The fire is roaring.",
+            4: "The fire crackles merrily.",
+            3: "The fire wavers.",
+            2: "The fire flickers.",
+            1: "The embers smoulder.",
+            0: "The coals are cold.",
+        }
         self.cookable = cookable
-    
+
     def stoke_fire(self):
-        #sets firestatus to 5
+        # sets firestatus to 5
         self.firestatus = 5
 
     def tick_fire(self):
-        #ureturns any cooked food
+        # ureturns any cooked food
         food = None
         if self.cooking != []:
             self.cooking[0][1] = self.cooking[0][1] - self.firestatus
@@ -73,7 +76,7 @@ class campfire:
                     food = "burnt mess"
         firestatusstr = "The coals are cold."
 
-        #returns the fire description based on the fire level
+        # returns the fire description based on the fire level
         if int(self.firestatus) in self.firestatusmessages.keys():
             firestatusstr = self.firestatusmessages[int(self.firestatus)]
         if self.firestatus > 0:
@@ -81,48 +84,51 @@ class campfire:
             if self.firestatus < 0:
                 self.firestatus = 0
         return food, firestatusstr
-    
-    def add_cooking(self,food,cookingdict):
-        #adds a piece of food to the fire
+
+    def add_cooking(self, food, cookingdict):
+        # adds a piece of food to the fire
         if food in cookingdict.keys():
             self.cooking.append([food, cookingdict[food]])
         else:
             self.cooking.append([food, 5])
 
-#class representing the player
+
+# class representing the player
 class player:
     def __init__(self):
-        #player values
-        self.inventory = {"sharpened stick":1}
+        # player values
+        self.inventory = {"sharpened stick": 1}
         self.temperature = 5
-        self.hp = 100#health
-        self.atkmult = 1#attack multiplier
+        self.hp = 100  # health
+        self.atkmult = 1  # attack multiplier
         self.hunger = 100
         self.shield = 0
         self.hungerbar = ""
         self.effects = {}
 
-        #generates the hunger bar
-        for i in range(math.ceil(self.hunger/10)):
+        # generates the hunger bar
+        for i in range(math.ceil(self.hunger / 10)):
             self.hungerbar += "\U0001F356"
 
-        #generates a message based on player temperature
-        self.temperaturemessage = {5:"You feel warm.",
-                                   4:"You feel warm.",
-                                   3:"It is slightly chilly.",
-                                   2:"The cold is starting to seep in.",
-                                   1:"Your teeth are chattering.",
-                                   0:"The cold pierces you to the bone."}
-        
+        # generates a message based on player temperature
+        self.temperaturemessage = {
+            5: "You feel warm.",
+            4: "You feel warm.",
+            3: "It is slightly chilly.",
+            2: "The cold is starting to seep in.",
+            1: "Your teeth are chattering.",
+            0: "The cold pierces you to the bone.",
+        }
+
     def gain_object(self, object):
-        #adds an object to a player's inventory
+        # adds an object to a player's inventory
         if object not in self.inventory.keys():
             self.inventory[object] = 1
         else:
             self.inventory[object] += 1
 
     def tick_player(self, outside_temp_level):
-        #updates the player's health according to the temperature
+        # updates the player's health according to the temperature
         if outside_temp_level > self.temperature:
             self.temperature += 1
             if self.temperature > 5:
@@ -134,33 +140,33 @@ class player:
         if self.temperature == 0:
             self.hp -= 2
 
-        #regenerates player health
+        # regenerates player health
         self.hp += 1
 
-        #updates player health based on hunger
+        # updates player health based on hunger
         if self.hp > 100:
             self.hp = 100
         self.hunger -= 1
 
-        #returns message based on hunger
+        # returns message based on hunger
         if self.hunger <= 0:
             self.hunger = 0
             hungermessage = "You are starving."
             self.hp -= 5
         else:
             hungermessage = ""
-        
-        #updates hunger bar
+
+        # updates hunger bar
         self.hungerbar = ""
-        for i in range(math.ceil(self.hunger/10)):
+        for i in range(math.ceil(self.hunger / 10)):
             self.hungerbar += "\U0001F356"
-        for i in range(10-math.ceil(self.hunger/10)):
+        for i in range(10 - math.ceil(self.hunger / 10)):
             self.hungerbar += "\U0000274C"
-        #returns all values
+        # returns all values
         return self.temperaturemessage[self.temperature], hungermessage
-    
+
     def eat_food(self, food_name, food_val):
-        #eat inputed food name
+        # eat inputed food name
         self.hunger += food_val
         if self.hunger > 100:
             self.hunger = 100
@@ -169,52 +175,55 @@ class player:
             self.inventory.pop(food_name)
 
     def use_item(self, item_name):
-        #use an item
+        # use an item
         self.inventory[item_name] -= 1
         if self.inventory[item_name] == 0:
             self.inventory.pop(item_name)
 
     def opp_turn(self, opp_dmg, opp_effects):
-        #takes away shield based on opponent damage
+        # takes away shield based on opponent damage
         self.shield -= opp_dmg
         if self.shield < 0:
             self.hp += self.shield
             self.shield = 0
 
-        #adds effects inflicted to the player's effects
+        # adds effects inflicted to the player's effects
         if opp_effects != {}:
             for i in opp_effects.keys():
                 if opp_effects[i] != None:
                     self.effects[i] = opp_effects[i]
                 else:
                     for n in range(int(i.split()[1])):
-                        effects[i.split()[0]].tick(self.hp, self.shield, self.atkmult, 0, opp_dmg)
-
+                        effects[i.split()[0]].tick(
+                            self.hp, self.shield, self.atkmult, 0, opp_dmg
+                        )
 
     def tick(self):
-        #ticks all effects on the player, reducing the duration of all of them by 1, any effects with a duration of 0 are added to the remove list
+        # ticks all effects on the player, reducing the duration of all of them by 1, any effects with a duration of 0 are added to the remove list
         remove_list = []
         for i in self.effects.keys():
             for n in range(int(i.split()[1])):
-                self.hp, self.shield, self.atkmult, dmg = effects[i.split()[0]].tick(self.hp, self.shield, self.atkmult, 0, 0)
+                self.hp, self.shield, self.atkmult, dmg = effects[i.split()[0]].tick(
+                    self.hp, self.shield, self.atkmult, 0, 0
+                )
                 self.effects[i] -= 1
                 if self.effects[i] <= 0:
                     remove_list.append(i)
-                
-        #removes all effects on the remove list from the player's effects
+
+        # removes all effects on the remove list from the player's effects
         if remove_list != []:
             for i in remove_list:
                 self.effects.pop(i)
-        
-        #transitions any damage not taken by shield to the player's health
+
+        # transitions any damage not taken by shield to the player's health
         if self.shield < 0:
             self.hp -= self.shield
             self.shield = 0
-        self.shield = int(self.shield/2)
+        self.shield = int(self.shield / 2)
         self.hp = int(self.hp)
 
     def self_turn(self, shield, health, selfeffects):
-        #updates player's values
+        # updates player's values
         self.hp += health
         if self.hp > 100:
             self.hp = 100
@@ -222,289 +231,383 @@ class player:
         for i in selfeffects.keys():
             self.effects[i] = selfeffects[i]
 
-#class representing the map
+
+# class representing the map
 class map:
     def __init__(self, biomelist):
-        #inputs possible biomes, accepts a list of region() classes as an input
+        # inputs possible biomes, accepts a list of region() classes as an input
         self.biomelist = biomelist
 
-        #sets starting biome to a forest
-        self.map = {(0,0):biomelist["Forest"]}
+        # sets starting biome to a forest
+        self.map = {(0, 0): biomelist["Forest"]}
 
-        #sets the starting player location
-        self.playerlocation = (0,0)
+        # sets the starting player location
+        self.playerlocation = (0, 0)
 
     def generatebiome(self, coordinate):
-        #generates a biome based on an inputted coordinate
+        # generates a biome based on an inputted coordinate
         if coordinate not in self.map.keys():
             biomechoices = []
-            for i in [coordinate[0]+1, coordinate[0]-1, coordinate[0]]:
-                for j in [coordinate[1]+1, coordinate[1]-1, coordinate[1]]:
-                    if (i,j) in list(self.map.keys()):
+            for i in [coordinate[0] + 1, coordinate[0] - 1, coordinate[0]]:
+                for j in [coordinate[1] + 1, coordinate[1] - 1, coordinate[1]]:
+                    if (i, j) in list(self.map.keys()):
                         for k in range(30):
-                            biomechoices.append(self.map[(i,j)])
+                            biomechoices.append(self.map[(i, j)])
             for i in self.biomelist.keys():
                 biomechoices.append(self.biomelist[i])
             self.map[coordinate] = choice(biomechoices)
         return self.map[coordinate]
-    
+
     def moveplayer(self, direction):
-        #takes in an inputted direction and updates the player coordinate based on the direction
+        # takes in an inputted direction and updates the player coordinate based on the direction
         direction = direction.lower()
         previouscoords = self.playerlocation
-        if direction == "up" or direction == "north" or direction == "u" or direction == "n":
-            self.playerlocation = (self.playerlocation[0], self.playerlocation[1]-1)
+        if (
+            direction == "up"
+            or direction == "north"
+            or direction == "u"
+            or direction == "n"
+        ):
+            self.playerlocation = (self.playerlocation[0], self.playerlocation[1] - 1)
 
-        elif direction == "down" or direction == "south" or direction == "d" or direction == "s":
-            self.playerlocation = (self.playerlocation[0], self.playerlocation[1]+1)
+        elif (
+            direction == "down"
+            or direction == "south"
+            or direction == "d"
+            or direction == "s"
+        ):
+            self.playerlocation = (self.playerlocation[0], self.playerlocation[1] + 1)
 
-        elif direction == "left" or direction == "west" or direction == "l" or direction == "w":
-            self.playerlocation = (self.playerlocation[0]-1,  self.playerlocation[1])
+        elif (
+            direction == "left"
+            or direction == "west"
+            or direction == "l"
+            or direction == "w"
+        ):
+            self.playerlocation = (self.playerlocation[0] - 1, self.playerlocation[1])
 
-        elif direction == "right" or direction == "east" or direction == "r" or direction == "e":
-            self.playerlocation = (self.playerlocation[0]+1, self.playerlocation[1])
-        
-        #generates the biome the player is on
+        elif (
+            direction == "right"
+            or direction == "east"
+            or direction == "r"
+            or direction == "e"
+        ):
+            self.playerlocation = (self.playerlocation[0] + 1, self.playerlocation[1])
+
+        # generates the biome the player is on
         self.generatebiome(self.playerlocation)
 
-        #returns False if the player coordinates have not changed, returns True if the player coordinates have changed
+        # returns False if the player coordinates have not changed, returns True if the player coordinates have changed
         if previouscoords == self.playerlocation:
             return False
-        
+
         else:
             return True
 
-#class representing an item
+
+# class representing an item
 class item:
     def __init__(self, name, weight, crafting_methods):
         self.name = name
         self.weight = weight
         self.crafting_methods = crafting_methods
 
-#class representing a tool (currently unused)
+
+# class representing a tool (currently unused)
 class tool(item):
     def __init__(self, name, weight, crafting_methods, durability, use):
-        #sets tool values
+        # sets tool values
         super().__init__(name, weight, crafting_methods)
         self.durability = durability
         self.use = use
 
     def use_tool(self):
-        #changes durability by use
+        # changes durability by use
         self.durability -= 1
         if self.durability <= 0:
             return False
         else:
             return True
 
-#class representing a weapon
+
+# class representing a weapon
 class weapon(tool):
-    def __init__(self, name, weight, crafting_methods, durability, attachedmoves, damagemult):
-        #sets the values of the weapon
+    def __init__(
+        self, name, weight, crafting_methods, durability, attachedmoves, damagemult
+    ):
+        # sets the values of the weapon
         super().__init__(name, weight, crafting_methods, durability, "weapon")
         self.moves = attachedmoves
         self.damagemult = damagemult
 
     def use_weapon(self, move):
-        #returns a move() class based on the move used
+        # returns a move() class based on the move used
         dura = self.use_tool()
         return dura, self.damagemult, self.moves[move]
 
-#class representing a move
+
+# class representing a move
 class move:
-    def __init__(self, name, dmg, effect, shield, heal, type, selfeffect, attachedweapon):
-        #sets move values
+    def __init__(
+        self, name, dmg, effect, shield, heal, type, selfeffect, attachedweapon
+    ):
+        # sets move values
         self.name = name
-        self.dmg = dmg#damage
-        self.effects = effect#effects inflicted on opponent
+        self.dmg = dmg  # damage
+        self.effects = effect  # effects inflicted on opponent
         self.shield = shield
         self.type = type
-        self.hpgain = heal#health gain from move
-        self.selfeffects = selfeffect#effects put on user
-        self.weapon = attachedweapon#weapon the move is attached to
+        self.hpgain = heal  # health gain from move
+        self.selfeffects = selfeffect  # effects put on user
+        self.weapon = attachedweapon  # weapon the move is attached to
 
-#claSs representing the enemy
+
+# claSs representing the enemy
 class enemy:
     def __init__(self, hp, moves, move_pattern, drops, drop_number):
-        self.hp = hp#health
+        self.hp = hp  # health
         self.moves = moves
         self.effects = {}
         self.shield = 0
-        self.atkmult = 1#attack multiplier
-        self.move_pattern = move_pattern#the move pattern the enemy follows
-        self.drop_number = drop_number#how many drops the enemy yields when defeated
-        self.pattern_position = 0#position in move pattern
-        self.move_types = {#possible moves sorted into a dictionary based on the move type
-            "attacking":[],
-            "defending":[],
-            "healing":[],
-            "special":[],
-        }
+        self.atkmult = 1  # attack multiplier
+        self.move_pattern = move_pattern  # the move pattern the enemy follows
+        self.drop_number = drop_number  # how many drops the enemy yields when defeated
+        self.pattern_position = 0  # position in move pattern
+        self.move_types = (
+            {  # possible moves sorted into a dictionary based on the move type
+                "attacking": [],
+                "defending": [],
+                "healing": [],
+                "special": [],
+            }
+        )
         for i in moves:
-            self.move_types[i.type].append(i)#sorts moves into move_types
-        self.drops = drops#sets the possible drops the enemy may give when defeated
-        self.orighp = hp#sets the health the enemy spawns with
+            self.move_types[i.type].append(i)  # sorts moves into move_types
+        self.drops = drops  # sets the possible drops the enemy may give when defeated
+        self.orighp = hp  # sets the health the enemy spawns with
 
     def opp_turn(self, opp_atk, opp_effect):
-        #updates shield based on opponet attack
+        # updates shield based on opponet attack
         self.shield -= opp_atk
 
-        #reduces health by any residual attack not absorbed by the shield
+        # reduces health by any residual attack not absorbed by the shield
         if self.shield < 0:
             self.hp += self.shield
             self.shield = 0
 
-        #updates effects based on the effects inflicted by the move
+        # updates effects based on the effects inflicted by the move
         if opp_effect != {}:
             for i in opp_effect.keys():
                 if opp_effect[i] != None:
                     self.effects[i] = opp_effect[i]
                 else:
                     for n in range(int(i.split()[1])):
-                        effects[i.split()[0]].tick(self.hp, self.shield, self.atkmult, 0, opp_atk)
+                        effects[i.split()[0]].tick(
+                            self.hp, self.shield, self.atkmult, 0, opp_atk
+                        )
 
     def self_turn(self):
-        #determines the move based on the move pattern
-        moveselect = choice(self.move_types[self.move_pattern[self.pattern_position%(len(self.move_pattern))]])
+        # determines the move based on the move pattern
+        moveselect = choice(
+            self.move_types[
+                self.move_pattern[self.pattern_position % (len(self.move_pattern))]
+            ]
+        )
 
-        #updates health and shield based on the move
+        # updates health and shield based on the move
         self.hp += moveselect.hpgain
         self.shield += moveselect.shield
 
-        #updates effects based on the move
+        # updates effects based on the move
         for i in moveselect.selfeffects.keys():
             self.effects[i] = moveselect.selfeffects[i]
-        
-        #returns all values of the move
-        return moveselect.dmg, moveselect.effects, moveselect.hpgain, moveselect.shield, moveselect.selfeffects, moveselect.name
-    
+
+        # returns all values of the move
+        return (
+            moveselect.dmg,
+            moveselect.effects,
+            moveselect.hpgain,
+            moveselect.shield,
+            moveselect.selfeffects,
+            moveselect.name,
+        )
+
     def tick(self):
         remove_list = []
-        
-        #updates all effects and adds all effects with duration 0 to remove_list
+
+        # updates all effects and adds all effects with duration 0 to remove_list
         for i in self.effects.keys():
             for n in range(int(i.split()[1])):
-                self.hp, self.shield, self.atkmult, dmg = i.split()[0].tick(self.hp, self.shield, self.atkmult, 0, 0)
+                self.hp, self.shield, self.atkmult, dmg = i.split()[0].tick(
+                    self.hp, self.shield, self.atkmult, 0, 0
+                )
                 self.effects[i] -= 1
                 if self.effects[i] <= 0:
                     remove_list.append(i)
-        
-        #removes all effect values in remove_list
+
+        # removes all effect values in remove_list
         if remove_list != []:
             for i in remove_list:
                 self.effects.pop(i)
 
-        #transfers any extra damage not absorbed by shield to health
+        # transfers any extra damage not absorbed by shield to health
         if self.shield <= 0:
             self.hp += self.shield
             self.shield = 0
 
     def reset(self):
-        #resets the value of the class so it can be reused in future encounters
+        # resets the value of the class so it can be reused in future encounters
         self.hp = self.orighp
         self.atkmult = 1
         self.effects = {}
         self.pattern_position = 0
         self.shield = 0
 
- #class representing effects   
+
+# class representing effects
 class effect:
     def __init__(self, name, description):
         self.name = name
         self.description = description
 
+
 class rage(effect):
     def __init__(self):
-        super().__init__("rage", "A pure rage flows through your veins. Increases your attack multiplier.")
+        super().__init__(
+            "rage",
+            "A pure rage flows through your veins. Increases your attack multiplier.",
+        )
+
     def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
-        #adds .3 to the entity's attack multiplier
+        # adds .3 to the entity's attack multiplier
         entityatkmult += 0.3
         return entityhp, entityshield, entityatkmult, dmg
-    
+
+
 class raise_guard(effect):
     def __init__(self):
-        super().__init__("raise guard", "You raise your guard and immediately feel more wary. Gain shield.")
+        super().__init__(
+            "raise guard",
+            "You raise your guard and immediately feel more wary. Gain shield.",
+        )
+
     def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
-        #adds 10 shield to entity
+        # adds 10 shield to entity
         entityshield += 10
         return entityhp, entityshield, entityatkmult, dmg
-    
+
+
 class poison(effect):
     def __init__(self):
-        super().__init__("poison", "A toxic smell emits from the chemical. Poisons the enemy, making them take damage every turn.")
+        super().__init__(
+            "poison",
+            "A toxic smell emits from the chemical. Poisons the enemy, making them take damage every turn.",
+        )
+
     def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
-        #entity loses 5 health a turn
+        # entity loses 5 health a turn
         entityhp -= 5
         return entityhp, entityshield, entityatkmult, dmg
-    
+
+
 class bludgeoning(effect):
     def __init__(self):
-        super().__init__("bludgeouning", "A hefty blow from this seems powerful. Reduces enemy shield by half.")
+        super().__init__(
+            "bludgeouning",
+            "A hefty blow from this seems powerful. Reduces enemy shield by half.",
+        )
+
     def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
-        #halves entity shield
-        entityshield = int(entityshield/2)
+        # halves entity shield
+        entityshield = int(entityshield / 2)
         return entityhp, entityshield, entityatkmult, dmg
-    
+
+
 class piercing(effect):
     def __init__(self):
         super().__init__("piercing", "Seems sharp. Ignores enemy armour.")
+
     def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
-        #attack goes through entity shield
+        # attack goes through entity shield
         entityshield += dmgincoming
         entityhp -= dmgincoming
         return entityhp, entityshield, entityatkmult, dmg
-    
+
+
 class weakening_toxin(effect):
     def __init__(self):
-        super().__init__("weakening toxin", "Contains a potent toxin. Reduces enemy shield and atk multiplier by 25%.")
-    def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
-        #multiplies shield and attack multiplier by 75%
-        entityshield = int(entityshield*3/4)
-        entityatkmult = entityatkmult*3/4
-        return entityhp, entityshield, entityatkmult, dmg
-    
-class healing(effect):
-    def __init__(self):
-        super().__init__("healing", "Seems rejuvenating. Restores a certain amount of health.")
-    def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
-        #adds 10 to entity health
-        entityhp += 10
-        return entityhp, entityshield, entityatkmult, dmg
-    
-class off_balance(effect):
-    def __init__(self):
-        super().__init__("offbalance", "This move seems like it will take the enemy off balance. Removes shield per turn.")
+        super().__init__(
+            "weakening toxin",
+            "Contains a potent toxin. Reduces enemy shield and atk multiplier by 25%.",
+        )
 
     def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
-        #reduces entity shield by 10
+        # multiplies shield and attack multiplier by 75%
+        entityshield = int(entityshield * 3 / 4)
+        entityatkmult = entityatkmult * 3 / 4
+        return entityhp, entityshield, entityatkmult, dmg
+
+
+class healing(effect):
+    def __init__(self):
+        super().__init__(
+            "healing", "Seems rejuvenating. Restores a certain amount of health."
+        )
+
+    def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
+        # adds 10 to entity health
+        entityhp += 10
+        return entityhp, entityshield, entityatkmult, dmg
+
+
+class off_balance(effect):
+    def __init__(self):
+        super().__init__(
+            "offbalance",
+            "This move seems like it will take the enemy off balance. Removes shield per turn.",
+        )
+
+    def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
+        # reduces entity shield by 10
         entityshield -= 10
         return entityhp, entityshield, entityatkmult, dmg
 
+
 class irradiated(effect):
     def __init__(self):
-        super().__init__("irradiated", "Infects the opponent with radiation, reducing their stats all around.")
+        super().__init__(
+            "irradiated",
+            "Infects the opponent with radiation, reducing their stats all around.",
+        )
 
     def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
-        #halves both entity health and entity shield, and lowering entity attack multiplier by 0.1
-        entityhp = int(entityhp*0.95)
-        entityshield = int(entityshield*0.95)
+        # halves both entity health and entity shield, and lowering entity attack multiplier by 0.1
+        entityhp = int(entityhp * 0.95)
+        entityshield = int(entityshield * 0.95)
         entityatkmult -= 0.1
         return entityhp, entityshield, entityatkmult, dmg
-    
+
+
 class radiated_frenzy(effect):
     def __init__(self):
-        super().__init__("radiated frenzy", "Drives the user into a radiation induced rage, giving extra attack but also harming the user.")
+        super().__init__(
+            "radiated frenzy",
+            "Drives the user into a radiation induced rage, giving extra attack but also harming the user.",
+        )
 
-    def tick(self, entityhp, entityshield, entityatkmult,  dmg, dmgincoming):
-        #raises entity stats all around
-        entityhp = int(entityhp*0.95)
-        entityshield = int(entityshield*0.95)
+    def tick(self, entityhp, entityshield, entityatkmult, dmg, dmgincoming):
+        # raises entity stats all around
+        entityhp = int(entityhp * 0.95)
+        entityshield = int(entityshield * 0.95)
         entityatkmult += 0.5
         return entityhp, entityshield, entityatkmult, dmg
 
-#class representing a move
+
+# class representing a move
 class move:
-    def __init__(self, name, dmg, effect, shield, heal, type, selfeffect, attachedweapon):
+    def __init__(
+        self, name, dmg, effect, shield, heal, type, selfeffect, attachedweapon
+    ):
         self.name = name
         self.dmg = dmg
         self.effects = effect
@@ -517,209 +620,617 @@ class move:
     def tick(self):
         return self.dmg, self.shield, self.hpgain, self.selfeffects, self.effects
 
-#dictionary of effects in the format "name":effect()
+
+# dictionary of effects in the format "name":effect()
 effects = {
-    "healing":healing(),
-    "weakening toxin":weakening_toxin(),
-    "piercing":piercing(),
-    "bludgeoning":bludgeoning(),
-    "poison":poison(),
-    "raise guard":raise_guard(),
-    "rage":rage(),
-    "irradiated":irradiated(),
-    "offbalance":off_balance()
+    "healing": healing(),
+    "weakening toxin": weakening_toxin(),
+    "piercing": piercing(),
+    "bludgeoning": bludgeoning(),
+    "poison": poison(),
+    "raise guard": raise_guard(),
+    "rage": rage(),
+    "irradiated": irradiated(),
+    "offbalance": off_balance(),
 }
 
-#dictionary of moves in the format "name":move(name, attack, effects inflicted on opponent, shield, health healed, type, effects applied to self, weapons the move is attached to)
+# dictionary of moves in the format "name":move(name, attack, effects inflicted on opponent, shield, health healed, type, effects applied to self, weapons the move is attached to)
 moves = {
-    "punch":move("punch", 5, {}, 0, 0, "attacking", {}, []),
-    "defensive_stance":move("defensive stance", 0, {}, 25, 0, "defending", {}, []),
-    "heavy_swing":move("heavy swing", 10, {"bludgeoning 1":None}, 0, 0, "attacking", {"raise guard 2":2}, []),
-    "light_swing":move("light swing", 5, {"bludgeoning 1":None}, 0, 0, "attacking", {"raise guard 1":2}, []),
-    "stab":move("stab", 5, {"piercing 1":None}, 0, 0, "attacking", {}, ["sharpened stick"]),
-    "bash":move("bash", 2, {"piercing 1":None}, 0, 0, "attacking", {}, ["sharpened stone"]),
-    "side_slash":move("slide slash", 5, {"offbalance 1":3, "bludgeoning 1":None}, 0, 0, "attacking", {}, ["crude stone axe"]),
-    "overhead_slash":move("overhead slash", 10, {"bludgeoning 1":None}, 0, 0, "attacking", {"raise guard 2":2}, ["crude stone axe"]),
-    "scavenged_goods":move("scavenged goods", 0, {}, 10, 5, "healing", {"healing 1":3}, []),
-    "poisoned_slash":move("poisoned slash", 5, {"poison 2":2}, 0, 0, "attacking", {}, []),
-    "aggressive_hiss":move("aggressive hiss", 0, {}, 0, 0, "special", {"rage 2":2}, []),
-    "struggle":move("struggle", 0, {}, 0, 0, "special", {}, []),
-    "added_padding":move("added padding", 0, {}, 50, 0, "defending",{}, []),
-    "bite":move("bite", 10, {"bludgeoning 1":None}, 0, 0, "attacking", {}, []),
-    "radioactive_bite":move("radioactive bite", 10, {"bludgeoning 1":None, "irradiated 2":2}, 0, 0, "attacking", {"irradiated frenzy 1":None}, []),
-    "irradiated_reinforcement":move("irradiated reinforcement", 0, {}, 30, 0, "defending", {"irradiated frenzy 2":None}, []),
-    "howl":move("howl", 0, {}, 0, 0, "special", {"rage 2":2}, []),
-    "piercing_round":move("piercing round", 30, {"piercing 1":None}, 0, 0, "attacking", {"rage 2":2}, ["gold plated glock"]),
-    "miniaturised_shotgun_round":move("miniaturised shotgun round", 50, {"bludgeoning 1":None}, 0, 0, "attacking", {"rage 2":2}, ["gold plated glock"]),
-    "gun_slinger's_stance":move("gun slinger's stance", 0, {}, 30, 0, "defending", {"raise guard 3":2}, ["gold plated glock"]),
-    "heavy_radiation":move("heavy radiation", 0, {"irradiated 3":3}, 0, 0, "special", {"irradiated frenzy 3":2}, ["gamma gun"]),
-    "gamma_burst":move("gamma burst", 5, {"irradiated 2":2}, 0, 0, "attacking", {"irradiated frenzy 3":2}, ["gamma gun"]),
-    "bloodlust":move("bloodlust", 0, {}, 0, 0, "special", {"rage 3":2}, ["alpha's blade"]),
-    "alpha_leadership":move("alpha leadership", 0, {}, 20, 50, "healing", {}, ["alpha's blade"]),
-    "full_moon's_call":move("full moon's call", 0, {}, 50, 0, "defending", {"rage 2":2}, ["alpha's blade"])
-
-
-}
-
-#dictionary of items in the format "name":item(name, weight (unused), crafting recipes)
-items = {
-    "long grass":item("long grass", 2, []),
-    "stick":item("stick", 2, []),
-    "rotting meat":item("rotting meat", 4, []),
-    "wolf meat":item("wolf meat", 5, []),
-    "cooked wolf meat":item("cooked wolf meat", 5, []),
-    "fur":item("fur", 3, []),
-    "lizard skin":item("lizard skin", 2, []),
-    "lizard tongue":item("lizard tongue", 4, []),
-    "lizard poison":item("lizard poison", 2, []),
-    "poisoned lizard tongue":item("poisoned lizard tongue", 5, [{"lizard tongue":1, "lizard poison":1}]),
-    "wood":item("wood", 5, [{"stick":8}]),
-    "deer meat":item("deer meat", 7, []),
-    "cooked deer meat":item("cooked deer meat", 7, []),
-    "leaves":item("leaves", 1, []),
-    "fruit":item("fruit", 3, []),
-    "berries":item("berries", 2, []),
-    "elk meat":item("elk meat", 10, []),
-    "burned mess":item("burned mess", 1, []),
-    "cooked elk meat":item("cooked elk meat", 10, []),
-    "irradiated meat":item("irradiated meat", 4, []),
-    "radioactive gunk":item("radioactive gunk", 3, [{"irradiated meat":2, "burned mess":1}]),
-    "vines":item("vines", 2, [{"long grass":10}]),
-    "branch":item("branch", 5, []),
-    "sand":item("sand", 2, []),
-    "cactus":item("cactus", 4, []),
-    "stones":item("stones", 2, []),
-    "gold coin":item("gold coin", 1, []),
-    "alpha canine":item("alpha canine", 1, []),
-    "advanced weaponry fragment":item("advanced weaponry fragment", 1, []),
-    "gamma gun core":item("gamma gun core", 1, []),
-    "alpha's blade":weapon("alpha's blade", 3, [{"alpha canine":2, "fur":7, "sharpened stone":1, "stick":2}], 250, [moves["full_moon's_call"], moves["bloodlust"], moves["alpha_leadership"]], 2),
-    "gamma gun":weapon("gamma gun", 5, [{"gamma gun core":1, "advanced weaponry fragment":9}], 500, [moves["gamma_burst"], moves["heavy_radiation"]], 10),
-    "sharpened stone":weapon("sharpened stone", 2, [{"stones":3}], 5, [moves["bash"]], 1),
-    "sharpened stick":weapon("sharpened stick", 4, [{"branch":1, "sharpened stone":1}], 10, [moves["stab"]], 1),
-    "crude stone axe":weapon("crude stone axe", 8, [{"stones":5, "branch":1, "vines":2}], 20, [moves["side_slash"], moves["overhead_slash"]], 1.3),
-    "gold plated glock":weapon("gold plated glock", 3, [], 200, [moves["piercing_round"], moves["miniaturised_shotgun_round"], moves["gun_slinger's_stance"]], 1)
-
-}
-
-#dictionary of weapons in the format of "name":weapon(name, weight, crafting, durability, moves, weapon attack multiplier)
-weaponlist = {
-    "alpha's blade":weapon("alpha's blade", 3, [{"alpha canine":2, "fur":7, "sharpened stone":1, "stick":2}], 250, [moves["full_moon's_call"], moves["bloodlust"], moves["alpha_leadership"]], 2),
-    "gamma gun":weapon("gamma gun", 5, [{"gamma gun core":1, "advanced weaponry fragment":9}], 500, [moves["gamma_burst"], moves["heavy_radiation"]], 10),
-    "sharpened stone":weapon("sharpened stone", 2, [{"stones":3}], 5, [moves["bash"]], 1),
-    "sharpened stick":weapon("sharpened stick", 4, [{"branch":1, "sharpened stone":1}], 10, [moves["stab"]], 1),
-    "crude stone axe":weapon("crude stone axe", 8, [{"stones":5, "branch":1, "vines":2}], 20, [moves["side_slash"], moves["overhead_slash"]], 1.3),
-    "gold plated glock":weapon("gold plated glock", 3, [], 200, [moves["piercing_round"], moves["miniaturised_shotgun_round"], moves["gun_slinger's_stance"]], 1)
-}
-    
-#dictionary of biomes in the format of "name":region(possible search items, description, possible encounters)
-BiomeList = {
-    "Grassland":region(
-        {"long grass":30, "stick":10, "rotting meat":5, "wolf meat":3, "stones":7}, 
-        "Long grass stretches for miles, many grasses growing up to your knees. Who knows what it could conceal...", 
-        "Grassland", 
-        {"scavenger":10, "poisonous lizard":20, "rich man":1}
+    "punch": move("punch", 5, {}, 0, 0, "attacking", {}, []),
+    "defensive_stance": move("defensive stance", 0, {}, 25, 0, "defending", {}, []),
+    "heavy_swing": move(
+        "heavy swing",
+        10,
+        {"bludgeoning 1": None},
+        0,
+        0,
+        "attacking",
+        {"raise guard 2": 2},
+        [],
     ),
+    "light_swing": move(
+        "light swing",
+        5,
+        {"bludgeoning 1": None},
+        0,
+        0,
+        "attacking",
+        {"raise guard 1": 2},
+        [],
+    ),
+    "stab": move(
+        "stab", 5, {"piercing 1": None}, 0, 0, "attacking", {}, ["sharpened stick"]
+    ),
+    "bash": move(
+        "bash", 2, {"piercing 1": None}, 0, 0, "attacking", {}, ["sharpened stone"]
+    ),
+    "side_slash": move(
+        "slide slash",
+        5,
+        {"offbalance 1": 3, "bludgeoning 1": None},
+        0,
+        0,
+        "attacking",
+        {},
+        ["crude stone axe"],
+    ),
+    "overhead_slash": move(
+        "overhead slash",
+        10,
+        {"bludgeoning 1": None},
+        0,
+        0,
+        "attacking",
+        {"raise guard 2": 2},
+        ["crude stone axe"],
+    ),
+    "scavenged_goods": move(
+        "scavenged goods", 0, {}, 10, 5, "healing", {"healing 1": 3}, []
+    ),
+    "poisoned_slash": move(
+        "poisoned slash", 5, {"poison 2": 2}, 0, 0, "attacking", {}, []
+    ),
+    "aggressive_hiss": move(
+        "aggressive hiss", 0, {}, 0, 0, "special", {"rage 2": 2}, []
+    ),
+    "struggle": move("struggle", 0, {}, 0, 0, "special", {}, []),
+    "added_padding": move("added padding", 0, {}, 50, 0, "defending", {}, []),
+    "bite": move("bite", 10, {"bludgeoning 1": None}, 0, 0, "attacking", {}, []),
+    "radioactive_bite": move(
+        "radioactive bite",
+        10,
+        {"bludgeoning 1": None, "irradiated 2": 2},
+        0,
+        0,
+        "attacking",
+        {"irradiated frenzy 1": None},
+        [],
+    ),
+    "irradiated_reinforcement": move(
+        "irradiated reinforcement",
+        0,
+        {},
+        30,
+        0,
+        "defending",
+        {"irradiated frenzy 2": None},
+        [],
+    ),
+    "howl": move("howl", 0, {}, 0, 0, "special", {"rage 2": 2}, []),
+    "piercing_round": move(
+        "piercing round",
+        30,
+        {"piercing 1": None},
+        0,
+        0,
+        "attacking",
+        {"rage 2": 2},
+        ["gold plated glock"],
+    ),
+    "miniaturised_shotgun_round": move(
+        "miniaturised shotgun round",
+        50,
+        {"bludgeoning 1": None},
+        0,
+        0,
+        "attacking",
+        {"rage 2": 2},
+        ["gold plated glock"],
+    ),
+    "gun_slinger's_stance": move(
+        "gun slinger's stance",
+        0,
+        {},
+        30,
+        0,
+        "defending",
+        {"raise guard 3": 2},
+        ["gold plated glock"],
+    ),
+    "heavy_radiation": move(
+        "heavy radiation",
+        0,
+        {"irradiated 3": 3},
+        0,
+        0,
+        "special",
+        {"irradiated frenzy 3": 2},
+        ["gamma gun"],
+    ),
+    "gamma_burst": move(
+        "gamma burst",
+        5,
+        {"irradiated 2": 2},
+        0,
+        0,
+        "attacking",
+        {"irradiated frenzy 3": 2},
+        ["gamma gun"],
+    ),
+    "bloodlust": move(
+        "bloodlust", 0, {}, 0, 0, "special", {"rage 3": 2}, ["alpha's blade"]
+    ),
+    "alpha_leadership": move(
+        "alpha leadership", 0, {}, 20, 50, "healing", {}, ["alpha's blade"]
+    ),
+    "full_moon's_call": move(
+        "full moon's call", 0, {}, 50, 0, "defending", {"rage 2": 2}, ["alpha's blade"]
+    ),
+}
 
-    "Forest":region(
-        {"wolf meat":20, "fur":10, "wood":30, "deer meat":5, "leaves":20, "fruit":10, "stones":8},
+# dictionary of items in the format "name":item(name, weight (unused), crafting recipes)
+items = {
+    "long grass": item("long grass", 2, []),
+    "stick": item("stick", 2, []),
+    "rotting meat": item("rotting meat", 4, []),
+    "wolf meat": item("wolf meat", 5, []),
+    "cooked wolf meat": item("cooked wolf meat", 5, []),
+    "fur": item("fur", 3, []),
+    "lizard skin": item("lizard skin", 2, []),
+    "lizard tongue": item("lizard tongue", 4, []),
+    "lizard poison": item("lizard poison", 2, []),
+    "poisoned lizard tongue": item(
+        "poisoned lizard tongue", 5, [{"lizard tongue": 1, "lizard poison": 1}]
+    ),
+    "wood": item("wood", 5, [{"stick": 8}]),
+    "deer meat": item("deer meat", 7, []),
+    "cooked deer meat": item("cooked deer meat", 7, []),
+    "leaves": item("leaves", 1, []),
+    "fruit": item("fruit", 3, []),
+    "berries": item("berries", 2, []),
+    "elk meat": item("elk meat", 10, []),
+    "burned mess": item("burned mess", 1, []),
+    "cooked elk meat": item("cooked elk meat", 10, []),
+    "irradiated meat": item("irradiated meat", 4, []),
+    "radioactive gunk": item(
+        "radioactive gunk", 3, [{"irradiated meat": 2, "burned mess": 1}]
+    ),
+    "vines": item("vines", 2, [{"long grass": 10}]),
+    "branch": item("branch", 5, []),
+    "sand": item("sand", 2, []),
+    "cactus": item("cactus", 4, []),
+    "stones": item("stones", 2, []),
+    "gold coin": item("gold coin", 1, []),
+    "alpha canine": item("alpha canine", 1, []),
+    "advanced weaponry fragment": item("advanced weaponry fragment", 1, []),
+    "gamma gun core": item("gamma gun core", 1, []),
+    "alpha's blade": weapon(
+        "alpha's blade",
+        3,
+        [{"alpha canine": 2, "fur": 7, "sharpened stone": 1, "stick": 2}],
+        250,
+        [moves["full_moon's_call"], moves["bloodlust"], moves["alpha_leadership"]],
+        2,
+    ),
+    "gamma gun": weapon(
+        "gamma gun",
+        5,
+        [{"gamma gun core": 1, "advanced weaponry fragment": 9}],
+        500,
+        [moves["gamma_burst"], moves["heavy_radiation"]],
+        10,
+    ),
+    "sharpened stone": weapon(
+        "sharpened stone", 2, [{"stones": 3}], 5, [moves["bash"]], 1
+    ),
+    "sharpened stick": weapon(
+        "sharpened stick",
+        4,
+        [{"branch": 1, "sharpened stone": 1}],
+        10,
+        [moves["stab"]],
+        1,
+    ),
+    "crude stone axe": weapon(
+        "crude stone axe",
+        8,
+        [{"stones": 5, "branch": 1, "vines": 2}],
+        20,
+        [moves["side_slash"], moves["overhead_slash"]],
+        1.3,
+    ),
+    "gold plated glock": weapon(
+        "gold plated glock",
+        3,
+        [],
+        200,
+        [
+            moves["piercing_round"],
+            moves["miniaturised_shotgun_round"],
+            moves["gun_slinger's_stance"],
+        ],
+        1,
+    ),
+}
+
+# dictionary of weapons in the format of "name":weapon(name, weight, crafting, durability, moves, weapon attack multiplier)
+weaponlist = {
+    "alpha's blade": weapon(
+        "alpha's blade",
+        3,
+        [{"alpha canine": 2, "fur": 7, "sharpened stone": 1, "stick": 2}],
+        250,
+        [moves["full_moon's_call"], moves["bloodlust"], moves["alpha_leadership"]],
+        2,
+    ),
+    "gamma gun": weapon(
+        "gamma gun",
+        5,
+        [{"gamma gun core": 1, "advanced weaponry fragment": 9}],
+        500,
+        [moves["gamma_burst"], moves["heavy_radiation"]],
+        10,
+    ),
+    "sharpened stone": weapon(
+        "sharpened stone", 2, [{"stones": 3}], 5, [moves["bash"]], 1
+    ),
+    "sharpened stick": weapon(
+        "sharpened stick",
+        4,
+        [{"branch": 1, "sharpened stone": 1}],
+        10,
+        [moves["stab"]],
+        1,
+    ),
+    "crude stone axe": weapon(
+        "crude stone axe",
+        8,
+        [{"stones": 5, "branch": 1, "vines": 2}],
+        20,
+        [moves["side_slash"], moves["overhead_slash"]],
+        1.3,
+    ),
+    "gold plated glock": weapon(
+        "gold plated glock",
+        3,
+        [],
+        200,
+        [
+            moves["piercing_round"],
+            moves["miniaturised_shotgun_round"],
+            moves["gun_slinger's_stance"],
+        ],
+        1,
+    ),
+}
+
+# dictionary of biomes in the format of "name":region(possible search items, description, possible encounters)
+BiomeList = {
+    "Grassland": region(
+        {"long grass": 30, "stick": 10, "rotting meat": 5, "wolf meat": 3, "stones": 7},
+        "Long grass stretches for miles, many grasses growing up to your knees. Who knows what it could conceal...",
+        "Grassland",
+        {"scavenger": 10, "poisonous lizard": 20, "rich man": 1},
+    ),
+    "Forest": region(
+        {
+            "wolf meat": 20,
+            "fur": 10,
+            "wood": 30,
+            "deer meat": 5,
+            "leaves": 20,
+            "fruit": 10,
+            "stones": 8,
+        },
         "The leafy green forest seems almost vibrant against the eternally grey clouds. It seems alluring, too alluring...",
         "Forest",
-        {"scavenger":10, "wolf":15, "rich man":1}
+        {"scavenger": 10, "wolf": 15, "rich man": 1},
     ),
-    "Tundra":region(
-        {"berries":10, "elk meat":5, "stones":3},
+    "Tundra": region(
+        {"berries": 10, "elk meat": 5, "stones": 3},
         "The tundra white seems to almost blend in with the grey sky. Faded green bushes poke out here and there.",
         "Tundra",
-        {"scavenger":10, "gaunt man":20}
+        {"scavenger": 10, "gaunt man": 20},
     ),
-    "Nuclear Wasteland":region(
-        {"irradiated meat":10},
+    "Nuclear Wasteland": region(
+        {"irradiated meat": 10},
         "It feels unsettling, the radiation there but unfelt. The barren grey earth indicates nothing will grow here. You should leave.",
         "Nuclear Wasteland",
-        {"mutated wolf":20, "scavenger":10, "gaunt man":5, "mutated monstrosity":1}
+        {"mutated wolf": 20, "scavenger": 10, "gaunt man": 5, "mutated monstrosity": 1},
     ),
-    "Jungle":region(
-        {"fruit":30, "deer meat":10, "wolf meat":20, "vines":5, "branch":10, "stick":15},
+    "Jungle": region(
+        {
+            "fruit": 30,
+            "deer meat": 10,
+            "wolf meat": 20,
+            "vines": 5,
+            "branch": 10,
+            "stick": 15,
+        },
         "The jungle is thick, bird calls and animal howls echoing underneath the canopy. The lush vegetation obscures sight.",
         "Jungle",
-        {"scavenger":10, "wolf":30, "wolf pack":10, "baboon":5, "monkey":15}
+        {"scavenger": 10, "wolf": 30, "wolf pack": 10, "baboon": 5, "monkey": 15},
     ),
-    "Desert":region(
-        {"sand":30, "cactus":10},
+    "Desert": region(
+        {"sand": 30, "cactus": 10},
         "The desert stretches for miles, the once burning sands partially turned to glass from nuclear blasts.",
         "Desert",
-        {"scavenger":10, "gaunt man":20, "shrivelled husk":10}
+        {"scavenger": 10, "gaunt man": 20, "shrivelled husk": 10},
     ),
-    }
-
-#list of enemies in the format of "name":enemy(health, moves, move pattern, drops, drop amount)
-EnemyList = {
-    "scavenger":enemy(50, [moves["stab"], moves["scavenged_goods"]], ["attacking", "attacking", "healing"], ["rotting meat", "elk meat", "branch", "berries", "fruit"], 2),
-    "poisonous lizard":enemy(20, [moves["poisoned_slash"], moves["aggressive_hiss"]], ["attacking", "attacking", "special"], ["poison tipped lizard tongue", "lizard tongue", "lizard skin"], 1),
-    "rich man":enemy(500, [moves["struggle"], moves["added_padding"]], ["defending","special", "special", "special", "special"], ["gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold coin", "gold plated glock"], 23),
-    "wolf":enemy(25, [moves["side_slash"], moves["howl"], moves["bite"]], ["attacking", "special"], ["fur", "wolf meat"], 3),
-    "gaunt man":enemy(30, [moves["bite"], moves["stab"], moves["overhead_slash"]], ["attacking"], ["rotting meat", "irradiated meat"], 4),
-    "mutated wolf":enemy(40, [moves["radioactive_bite"], moves["irradiated_reinforcement"]], ["defending", "attacking", "attacking"], ["irradiated meat", "fur", "wolf meat"], 4),
-    "mutated monstrosity":enemy(100, [moves["radioactive_bite"], moves["irradiated_reinforcement"], moves["heavy_radiation"], moves["gamma_burst"]], ["special", "attacking", "attacking", "attacking"], ["radioactive gunk", "radioactive gunk", "radioactive gunk", "advanced weapon fragment", "gamma gun core"], 2),
-    "wolf pack":enemy(150, [moves["alpha_leadership"], moves["full_moon's_call"], moves["bloodlust"], moves["bite"]], ["special", "attacking", "attacking", "defending", "healing"], ["wolf meat", "wolf meat", "wolf meat", "wolf meat", "fur", "fur", "fur", "fur", "alpha canine"], 2),
-    "baboon":enemy(75, [moves["bash"], moves["bite"]], ["attacking"], ["vines", "branch", "leaves", "fruit"], 2),
-    "monkey":enemy(30, [moves["bite"], moves["bash"]], ["attacking"], ["vines", "branch", "leaves", "fruit"], 1),
-    "shrivelled husk":enemy(20, [moves["bash"], moves["stab"], moves["aggressive_hiss"]], ["special", "attacking"], ["rotting meat", "sand"], 3)
 }
 
-#dictionary of edible foods and their hunger values
-food_values = {"wolf meat":10,
-               "deer meat":20,
-               "fruit":10,
-               "cooked wolf meat":30,
-               "cooked deer meat":50,
-               "rotting meat":5,
-               "cooked rotting meat":10,
-               "elk meat":30,
-               "cooked elk meat":60,}
-#dictionary of cookable foods and their cooking times
-#if a food is not in the dictionary, it will return "charred mess" with a cooking time of 5
-cook_values = {"wolf meat":20,
-               "deer meat":30,
-               "rotting meat":10,
-               "elk meat":40}
+# list of enemies in the format of "name":enemy(health, moves, move pattern, drops, drop amount)
+EnemyList = {
+    "scavenger": enemy(
+        50,
+        [moves["stab"], moves["scavenged_goods"]],
+        ["attacking", "attacking", "healing"],
+        ["rotting meat", "elk meat", "branch", "berries", "fruit"],
+        2,
+    ),
+    "poisonous lizard": enemy(
+        20,
+        [moves["poisoned_slash"], moves["aggressive_hiss"]],
+        ["attacking", "attacking", "special"],
+        ["poison tipped lizard tongue", "lizard tongue", "lizard skin"],
+        1,
+    ),
+    "rich man": enemy(
+        500,
+        [moves["struggle"], moves["added_padding"]],
+        ["defending", "special", "special", "special", "special"],
+        [
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold coin",
+            "gold plated glock",
+        ],
+        23,
+    ),
+    "wolf": enemy(
+        25,
+        [moves["side_slash"], moves["howl"], moves["bite"]],
+        ["attacking", "special"],
+        ["fur", "wolf meat"],
+        3,
+    ),
+    "gaunt man": enemy(
+        30,
+        [moves["bite"], moves["stab"], moves["overhead_slash"]],
+        ["attacking"],
+        ["rotting meat", "irradiated meat"],
+        4,
+    ),
+    "mutated wolf": enemy(
+        40,
+        [moves["radioactive_bite"], moves["irradiated_reinforcement"]],
+        ["defending", "attacking", "attacking"],
+        ["irradiated meat", "fur", "wolf meat"],
+        4,
+    ),
+    "mutated monstrosity": enemy(
+        100,
+        [
+            moves["radioactive_bite"],
+            moves["irradiated_reinforcement"],
+            moves["heavy_radiation"],
+            moves["gamma_burst"],
+        ],
+        ["special", "attacking", "attacking", "attacking"],
+        [
+            "radioactive gunk",
+            "radioactive gunk",
+            "radioactive gunk",
+            "advanced weapon fragment",
+            "gamma gun core",
+        ],
+        2,
+    ),
+    "wolf pack": enemy(
+        150,
+        [
+            moves["alpha_leadership"],
+            moves["full_moon's_call"],
+            moves["bloodlust"],
+            moves["bite"],
+        ],
+        ["special", "attacking", "attacking", "defending", "healing"],
+        [
+            "wolf meat",
+            "wolf meat",
+            "wolf meat",
+            "wolf meat",
+            "fur",
+            "fur",
+            "fur",
+            "fur",
+            "alpha canine",
+        ],
+        2,
+    ),
+    "baboon": enemy(
+        75,
+        [moves["bash"], moves["bite"]],
+        ["attacking"],
+        ["vines", "branch", "leaves", "fruit"],
+        2,
+    ),
+    "monkey": enemy(
+        30,
+        [moves["bite"], moves["bash"]],
+        ["attacking"],
+        ["vines", "branch", "leaves", "fruit"],
+        1,
+    ),
+    "shrivelled husk": enemy(
+        20,
+        [moves["bash"], moves["stab"], moves["aggressive_hiss"]],
+        ["special", "attacking"],
+        ["rotting meat", "sand"],
+        3,
+    ),
+}
 
-os.system('cls' if os.name == 'nt' else 'clear')
+# dictionary of edible foods and their hunger values
+food_values = {
+    "wolf meat": 10,
+    "deer meat": 20,
+    "fruit": 10,
+    "cooked wolf meat": 30,
+    "cooked deer meat": 50,
+    "rotting meat": 5,
+    "cooked rotting meat": 10,
+    "elk meat": 30,
+    "cooked elk meat": 60,
+}
+# dictionary of cookable foods and their cooking times
+# if a food is not in the dictionary, it will return "charred mess" with a cooking time of 5
+cook_values = {"wolf meat": 20, "deer meat": 30, "rotting meat": 10, "elk meat": 40}
 
-#initalisation of classes
+os.system("cls" if os.name == "nt" else "clear")
+
+# initalisation of classes
 Fire = campfire(list(cook_values.keys()))
 Player = player()
 Map = map(BiomeList)
 
-#boolean determining if it is the first turn
+# boolean determining if it is the first turn
 first_turn = True
 
-#main game loop
+# main game loop
 while Player.hp > 0:
-    #updates region
+    # updates region
     encounter_value = Map.map[Map.playerlocation].tick_region()
 
-    #blocks encounter if it is the first turn
+    # blocks encounter if it is the first turn
     if encounter_value != None and first_turn == False:
 
-        #entity attacking player message
+        # entity attacking player message
         print(f"A {encounter_value} suddenly attacks you.")
         enemy_facing = EnemyList[encounter_value]
         encounter_done = False
         turns = 0
         input("Fight >> ")
 
-        #main fight game loop
+        # main fight game loop
         while encounter_done == False:
             turns += 1
 
-            #top status bar
+            # top status bar
             print(f"--Turn {turns}--")
-            print(f"|{encounter_value}|\U00002764: {enemy_facing.hp}|Next move: {enemy_facing.move_pattern[enemy_facing.pattern_position%(len(enemy_facing.move_pattern))]}|")
+            print(
+                f"|{encounter_value}|\U00002764: {enemy_facing.hp}|Next move: {enemy_facing.move_pattern[enemy_facing.pattern_position%(len(enemy_facing.move_pattern))]}|"
+            )
             print("-------------")
-            
-            #generates list of possible player moves
+
+            # generates list of possible player moves
             possible_moves = []
             move_select_ui = {}
             for i in Player.inventory.keys():
@@ -729,22 +1240,26 @@ while Player.hp > 0:
             possible_moves.append(moves["punch"])
             possible_moves.append(moves["defensive_stance"])
             for i in range(len(possible_moves)):
-                move_select_ui[str(i)] = possible_moves[i-1]
+                move_select_ui[str(i)] = possible_moves[i - 1]
 
-            #generates move selection UI
+            # generates move selection UI
             for i in move_select_ui.keys():
-                print(f"{i}: {move_select_ui[i].name}")#name of move and key to press to select move
-                d,s,h,se,e = move_select_ui[i].tick()#pulls the move's values
-                print(f"|   \U00002694 {d} | \U0001F6E1 {s} | \U00002764 {h}")#displays the move's damage, shield, and health gain
-                
-                #displays self applied effects by the move
+                print(
+                    f"{i}: {move_select_ui[i].name}"
+                )  # name of move and key to press to select move
+                d, s, h, se, e = move_select_ui[i].tick()  # pulls the move's values
+                print(
+                    f"|   \U00002694 {d} | \U0001F6E1 {s} | \U00002764 {h}"
+                )  # displays the move's damage, shield, and health gain
+
+                # displays self applied effects by the move
                 if se != {}:
                     print("|  --SELF--")
                     for i in se:
                         print(f"|  {i}: {se[i]} turns")
                         print(f"|  ({effects[i.split()[0]].description})")
 
-                #display effects applied to opponents by the move
+                # display effects applied to opponents by the move
                 if e != {}:
                     print("|  --ENEMY--")
                     for i in e:
@@ -755,56 +1270,58 @@ while Player.hp > 0:
                         print(f"|  ({effects[i.split()[0]].description})")
                 print("L---->")
 
-            #lower status bar
+            # lower status bar
             print(f"|\U00002764: {Player.hp}|\U0001F6E1  {Player.shield} |")
             for i in Player.effects.keys():
                 print(f"{i} - {effects[i.split()[0]].description}")
 
-            #player move selection input
+            # player move selection input
             move_input = input("move number >> ")
             while move_input not in move_select_ui.keys():
-                #asks for input again when input is invalid
+                # asks for input again when input is invalid
                 move_input = input("move number >> ")
-            
-            #pulls the details of selected move
+
+            # pulls the details of selected move
             d, s, h, se, e = move_select_ui[move_input].tick()
 
-            #applies shield, health gain, and self applied effects to the player
+            # applies shield, health gain, and self applied effects to the player
             Player.self_turn(s, h, se)
-            os.system('cls' if os.name == 'nt' else 'clear')
+            os.system("cls" if os.name == "nt" else "clear")
 
-            #displays the effects of the move
+            # displays the effects of the move
             print(f"You used {move_select_ui[move_input].name}")
             print(f"You deal {d} damage")
             print(f"You gain {s} shield")
             print(f"You heal for {h} health")
 
-            #displays effects gained by player
+            # displays effects gained by player
             if se != {}:
                 for i in se.keys():
                     print(f"You gain {i} for {se[i]} turns")
-            
-            #displays effects inflicted on opponent
+
+            # displays effects inflicted on opponent
             if e != {}:
                 for i in e.keys():
                     if e[i] == None:
                         print(f"You inflict {i} on enemy {encounter_value}")
                     else:
-                        print(f"You inflict {i} on enemy {encounter_value} for {e[i]} turns")
+                        print(
+                            f"You inflict {i} on enemy {encounter_value} for {e[i]} turns"
+                        )
             input("Press anything to continue >> ")
-            os.system('cls' if os.name == 'nt' else 'clear')
+            os.system("cls" if os.name == "nt" else "clear")
 
-            #inflicts damage and effects on opponent
+            # inflicts damage and effects on opponent
             enemy_facing.opp_turn(d, e)
 
-            #pulls details of enemy move
+            # pulls details of enemy move
             d, e, h, s, se, movechosen = enemy_facing.self_turn()
-            d = int(d*enemy_facing.atkmult)
+            d = int(d * enemy_facing.atkmult)
 
-            #inflicts damage and effects on player
+            # inflicts damage and effects on player
             Player.opp_turn(d, e)
 
-            #displays the effects of opponent's turn
+            # displays the effects of opponent's turn
             print(f"{encounter_value} used {movechosen}")
             print(f"{encounter_value} deals {d} damage to you")
             print(f"{encounter_value} gains {s} shield")
@@ -812,7 +1329,7 @@ while Player.hp > 0:
             if se != {}:
                 for i in se.keys():
                     print(f"{encounter_value} gains {i} for {se[i]} turns")
-            
+
             if e != {}:
                 for i in e.keys():
                     if e[i] == None:
@@ -820,13 +1337,13 @@ while Player.hp > 0:
                     else:
                         print(f"{encounter_value} inflict {i} on you for {e[i]} turns")
             input("Press anything to continue >> ")
-            os.system('cls' if os.name == 'nt' else 'clear')
+            os.system("cls" if os.name == "nt" else "clear")
 
-            #ticks enemy and player effects
+            # ticks enemy and player effects
             enemy_facing.tick()
             Player.tick()
 
-            #processes loot drops and adds it to player inventory
+            # processes loot drops and adds it to player inventory
             if Player.hp <= 0 or enemy_facing.hp <= 0:
                 if enemy_facing.hp <= 0:
                     print(f"You successfully defeated {encounter_value}")
@@ -838,44 +1355,46 @@ while Player.hp > 0:
                         Player.gain_object(i)
                     enemy_facing.reset()
                     input("Press anything to continue >> ")
-                    os.system('cls' if os.name == 'nt' else 'clear')
+                    os.system("cls" if os.name == "nt" else "clear")
                 encounter_done = True
-    #ends main game loop early if the player is dead from the encounter
+    # ends main game loop early if the player is dead from the encounter
     if Player.hp <= 0:
         break
 
-    #updates the food statuses that are cooking in the fire, updates fire message
+    # updates the food statuses that are cooking in the fire, updates fire message
     cooked_food, firemessage = Fire.tick_fire()
 
-    #returns any finished cooking foods
+    # returns any finished cooking foods
     if cooked_food != None:
         print(f"You retrieve {cooked_food} from the fire.")
         Player.gain_object(cooked_food)
 
-    #updates player hp according to the temperature
+    # updates player hp according to the temperature
     hungermessage, temperaturemessage = Player.tick_player(Fire.firestatus)
 
-    #top status bar
-    print(f"|\U00002764: {Player.hp}|{Player.hungerbar}|{Map.map[Map.playerlocation].name}|")
+    # top status bar
+    print(
+        f"|\U00002764: {Player.hp}|{Player.hungerbar}|{Map.map[Map.playerlocation].name}|"
+    )
     print(firemessage)
     print(temperaturemessage)
 
-    #displays starving message
+    # displays starving message
     if hungermessage != "":
         print(hungermessage)
     if first_turn == True:
         print("type 'help' for list of commands and tutorial")
     act = input(">> ")
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
 
-    #player command processing
+    # player command processing
 
-    #stokes the fire, updating fire value back to 5
+    # stokes the fire, updating fire value back to 5
     if act.lower() == "stoke fire":
         Fire.stoke_fire()
         print("You stoke the coals and the fire blazes.")
-    
-    #returns random amount of items from biome loot pool
+
+    # returns random amount of items from biome loot pool
     elif act.lower() == "search":
         found_item = Map.map[Map.playerlocation].search_region()
         found_item = [i for i in found_item if i != None]
@@ -886,19 +1405,19 @@ while Player.hp > 0:
                 Player.gain_object(i)
             print(f"You search around and find {', '.join(found_item)}")
 
-    #displays player inventory
+    # displays player inventory
     elif act.lower() == "view inventory":
         for i in Player.inventory.keys():
             print(f"{Player.inventory[i]}x {i}")
 
-    #displays most recent cooking item
+    # displays most recent cooking item
     elif act.lower() == "view cooking":
         if Fire.cooking == []:
             print("Nothing is cooking.")
         else:
             print(f"{Fire.cooking[0][0]} will be ready in {Fire.cooking[0][1]} turns.")
-    
-    #displays all unlocked crafting recipes
+
+    # displays all unlocked crafting recipes
     elif act.lower() == "view crafting recipes":
         if Player.inventory == {}:
             print("There doesn't seem to be any crafting recipes evident.")
@@ -916,20 +1435,22 @@ while Player.hp > 0:
                     materials_str += f"{craftable_recipes[i][0][j]} x {j}, "
                 print(f"{i}: {materials_str}")
 
-    #help and tutorial system
+    # help and tutorial system
     elif act.lower() == "help":
         helping = True
-        os.system('cls' if os.name == 'nt' else 'clear')
+        os.system("cls" if os.name == "nt" else "clear")
         while helping:
-            os.system('cls' if os.name == 'nt' else 'clear')
+            os.system("cls" if os.name == "nt" else "clear")
             print("INTRODUCTION")
-            print("Forest takes place in a post-apocalyptic wasteland, where the weather is forever a frosty -20 degrees. In order to survive this harsh landscape, you must trek through endless terrain, fight mutated monsters, and above all, survive.")
+            print(
+                "Forest takes place in a post-apocalyptic wasteland, where the weather is forever a frosty -20 degrees. In order to survive this harsh landscape, you must trek through endless terrain, fight mutated monsters, and above all, survive."
+            )
             print("[1]: Game mechanics")
             print("[2]: Available commands")
             print("[3]: Technical information")
             print("[Any other button]: Exit help")
             help_mode = input(">> ")
-            os.system('cls' if os.name == 'nt' else 'clear')
+            os.system("cls" if os.name == "nt" else "clear")
 
             if help_mode == "1":
                 mechanical_helping = True
@@ -941,61 +1462,119 @@ while Player.hp > 0:
                     print("[5]: Biomes, loot tables, and encounter values")
                     print("[Any other button]: Back")
                     mechanic_help_mode = input(">> ")
-                    os.system('cls' if os.name == 'nt' else 'clear')
+                    os.system("cls" if os.name == "nt" else "clear")
                     if mechanic_help_mode == "1":
-                        print("The status bar at the top of your screen gives you vital information to stay alive. It is split into a couple main components:")
-                        print("1. Your health is at the very top right. It displays as a heart symbol and then a number out of 100. When you reach 0 health, the game ends.")
-                        print("2. The hunger bar is in the middle. It displays how much hunger you have left. Eat food to replenish hunger, with different foods replenishing different amounts. Get too low, and you will start to starve, taking damage.")
-                        print("3. The biome you're currently in is at the top right of the status bar. The biome determines what drops and encounters you will find. To learn more, visit [5]: Biomes, loot tables, and encounter values.")
+                        print(
+                            "The status bar at the top of your screen gives you vital information to stay alive. It is split into a couple main components:"
+                        )
+                        print(
+                            "1. Your health is at the very top right. It displays as a heart symbol and then a number out of 100. When you reach 0 health, the game ends."
+                        )
+                        print(
+                            "2. The hunger bar is in the middle. It displays how much hunger you have left. Eat food to replenish hunger, with different foods replenishing different amounts. Get too low, and you will start to starve, taking damage."
+                        )
+                        print(
+                            "3. The biome you're currently in is at the top right of the status bar. The biome determines what drops and encounters you will find. To learn more, visit [5]: Biomes, loot tables, and encounter values."
+                        )
 
                     elif mechanic_help_mode == "2":
-                        print("This game also has a crafting system. In order to craft weapons and tools, you will first need to find materials.")
-                        print("Materials are gained randomly when searching, with different materials for different biomes.")
-                        print("In order to know which materials correspond to which biomes, visit [5]: Biomes, loot tables, and encounter values.")
-                        print("You can view the different crafting recipes available, and once you have enough materials, you can begin crafting.")
+                        print(
+                            "This game also has a crafting system. In order to craft weapons and tools, you will first need to find materials."
+                        )
+                        print(
+                            "Materials are gained randomly when searching, with different materials for different biomes."
+                        )
+                        print(
+                            "In order to know which materials correspond to which biomes, visit [5]: Biomes, loot tables, and encounter values."
+                        )
+                        print(
+                            "You can view the different crafting recipes available, and once you have enough materials, you can begin crafting."
+                        )
 
                     elif mechanic_help_mode == "3":
-                        print("Along your travels, you may encounter different enemies, ranging from scavengers to mutated monstrosities.")
-                        print("These will randomly appear every turn, and will enter into a turn based combat system.")
-                        print("For each turn, you will perform an available move, and then the enemy will. Unlock more moves by crafting new weapons.")
-                        print("Each move will deal a certain amount of damage, heal for a certain amount, and grant shield.")
-                        print("Shield can be used to block incoming damage, but be warned, every turn your shield will reduce by half.")
-                        print("Furthermore, each move will also inflict different types of effects.")
+                        print(
+                            "Along your travels, you may encounter different enemies, ranging from scavengers to mutated monstrosities."
+                        )
+                        print(
+                            "These will randomly appear every turn, and will enter into a turn based combat system."
+                        )
+                        print(
+                            "For each turn, you will perform an available move, and then the enemy will. Unlock more moves by crafting new weapons."
+                        )
+                        print(
+                            "Each move will deal a certain amount of damage, heal for a certain amount, and grant shield."
+                        )
+                        print(
+                            "Shield can be used to block incoming damage, but be warned, every turn your shield will reduce by half."
+                        )
+                        print(
+                            "Furthermore, each move will also inflict different types of effects."
+                        )
                         for i in effects.keys():
                             print(f"{i}: {effects[i].description}")
-                        print("Enemies will also drop loot once defeated. Some may drop common loot you can find by searching, but others can drop items necessary to craft powerful weapons.")
+                        print(
+                            "Enemies will also drop loot once defeated. Some may drop common loot you can find by searching, but others can drop items necessary to craft powerful weapons."
+                        )
 
                     elif mechanic_help_mode == "4":
-                        print("In this desolate wasteland, it is eternally cold. In order to avoid the cold, it is necessary to keep a fire burning at all times.")
-                        print("A fire can help keep you warm, but you must stoke it to keep it burning. Fortunately (because the dev is very lazy), this does not require resources.")
-                        print("If you don't stoke the fire enough, it will burn out, causing you to start freezing. Freeze for a long enough time and you will start taking damage.")
-                        print("A fire can also help cook food, some meats are cookable and will replenish more hunger when cooked.")
-                        print("But beware, cooking an uncookable object gives you a charred mess, which will be inedible and unusable.")
-                        
+                        print(
+                            "In this desolate wasteland, it is eternally cold. In order to avoid the cold, it is necessary to keep a fire burning at all times."
+                        )
+                        print(
+                            "A fire can help keep you warm, but you must stoke it to keep it burning. Fortunately (because the dev is very lazy), this does not require resources."
+                        )
+                        print(
+                            "If you don't stoke the fire enough, it will burn out, causing you to start freezing. Freeze for a long enough time and you will start taking damage."
+                        )
+                        print(
+                            "A fire can also help cook food, some meats are cookable and will replenish more hunger when cooked."
+                        )
+                        print(
+                            "But beware, cooking an uncookable object gives you a charred mess, which will be inedible and unusable."
+                        )
+
                     elif mechanic_help_mode == "5":
-                        print("There are many different biomes in this game, each one yielding different resources when searching: ")
+                        print(
+                            "There are many different biomes in this game, each one yielding different resources when searching: "
+                        )
                         for i in BiomeList:
-                            print(f">> {i}: {', '.join(list(BiomeList[i].loot_table.keys()))}")
+                            print(
+                                f">> {i}: {', '.join(list(BiomeList[i].loot_table.keys()))}"
+                            )
 
                         print("Different entities will also spawn in each biome: ")
                         for i in BiomeList:
-                            print(f">> {i}: {', '.join(list(BiomeList[i].entity_encounters.keys()))}")
-                    
+                            print(
+                                f">> {i}: {', '.join(list(BiomeList[i].entity_encounters.keys()))}"
+                            )
+
                     else:
                         mechanical_helping = False
-            
+
             elif help_mode == "2":
-                print("key: [i] represents any item, [I] represents specific items (specified in brackets), [T] represents specific words (specified in brackets), { insert text here } represents what needs to be typed (excluding the curly brackets), - insert text here is a description of what the command does.")
-                print("e.g. { lorem ipsum } [I] - lorem ipsum dolor sit amet (lorem ipsum dolor)")
+                print(
+                    "key: [i] represents any item, [I] represents specific items (specified in brackets), [T] represents specific words (specified in brackets), { insert text here } represents what needs to be typed (excluding the curly brackets), - insert text here is a description of what the command does."
+                )
+                print(
+                    "e.g. { lorem ipsum } [I] - lorem ipsum dolor sit amet (lorem ipsum dolor)"
+                )
                 print(">> { stoke fire } - stokes the fire")
                 print(">> { search } - searches the biome for items")
                 print(">> { view inventory } - view player inventory")
                 print(">> { view cooking } - view most recent cooking item")
                 print(">> { view crafting recipes } - views unlocked crafting recipes")
-                print(">> { eat [I] } - eats the specified item (only edible items will be successfully eaten.)")
-                print(">> { cook [I] } - cooks the specified item (uncookable items will return 'charred mess')")
-                print(">> move [T] - moves in specified direction (accepts 'up', 'down', 'left', 'right', 'north', 'south', 'east', 'west')")
-                print(">> craft [I] - crafts the specified item (will only craft if there are enough materials in player inventory)")
+                print(
+                    ">> { eat [I] } - eats the specified item (only edible items will be successfully eaten.)"
+                )
+                print(
+                    ">> { cook [I] } - cooks the specified item (uncookable items will return 'charred mess')"
+                )
+                print(
+                    ">> move [T] - moves in specified direction (accepts 'up', 'down', 'left', 'right', 'north', 'south', 'east', 'west')"
+                )
+                print(
+                    ">> craft [I] - crafts the specified item (will only craft if there are enough materials in player inventory)"
+                )
                 print("[Any button]: Back")
                 input(">> ")
 
@@ -1008,19 +1587,19 @@ while Player.hp > 0:
 
             else:
                 helping = False
-                    
-    #eats selected food if in food_values dict, otherwise, displays inedible message
+
+    # eats selected food if in food_values dict, otherwise, displays inedible message
     elif "eat" in act.lower().split(" ")[0]:
         act = act.replace("eat ", "")
         if act in Player.inventory.keys() and act in food_values.keys():
-            Player.eat_food(act,food_values[act])
+            Player.eat_food(act, food_values[act])
             print(f"You swallow the {act} and feel less hungry.")
         elif act in Player.inventory.keys():
             print("This... does not seem edible.")
         else:
             print("You can't seem to find that item.")
 
-    #cooks selected item, returning cooked (insert item name here) if in cook_values dict, otherwise, returns a charred mess
+    # cooks selected item, returning cooked (insert item name here) if in cook_values dict, otherwise, returns a charred mess
     elif "cook" in act.lower().split(" ")[0]:
         act = act.lower().replace("cook ", "")
         if act in Player.inventory.keys():
@@ -1030,7 +1609,7 @@ while Player.hp > 0:
         else:
             print("You can't seem to find that item.")
 
-    #moves player around the map, generating a biome if they haven't been there before
+    # moves player around the map, generating a biome if they haven't been there before
     elif "move" in act.lower().split(" ")[0]:
         act = act.lower().replace("move ", "")
         moved = Map.moveplayer(act)
@@ -1039,7 +1618,7 @@ while Player.hp > 0:
         else:
             print(Map.map[Map.playerlocation].description)
 
-    #crafts an item if all materials present, otherwise, returns error statement
+    # crafts an item if all materials present, otherwise, returns error statement
     elif "craft" in act.lower().split(" ")[0]:
         act = act.lower().replace("craft ", "")
         if act in items.keys():
@@ -1053,7 +1632,7 @@ while Player.hp > 0:
                         craftable = False
                 else:
                     craftable = False
-                
+
             if craftable == True:
                 Player.gain_object(act)
                 for i in items[act].crafting_methods[0].keys():
@@ -1065,10 +1644,10 @@ while Player.hp > 0:
         else:
             print("That item does not exist.")
 
-    #ends first turn
+    # ends first turn
     first_turn = False
 
 
-#death screen
-os.system('cls' if os.name == 'nt' else 'clear')
+# death screen
+os.system("cls" if os.name == "nt" else "clear")
 print("You have died.")
