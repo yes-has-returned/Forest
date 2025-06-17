@@ -1,6 +1,6 @@
 # Forest
 
-> **Author:** Ian Tang <ian.tang2@education.nsw.gov.au>
+> **Author:** Ian Tang <ian.tang3@education.nsw.gov.au>
 > 
 > **Editor:** Jiayu Hu <jiayu.hu1@education.nsw.gov.au>
 
@@ -27,4 +27,4 @@ Run the [main.py](main.py) file, and play the game in the terminal.
 ## Feedback
 As this game is relatively new and hasn't been fully playtested yet, feedback would be greatly appreciated.
 
-To submit feedback, email <ian.tang2@education.nsw.gov.au> or <jiayu.hu1@education.nsw.gov.au>.
+To submit feedback, email <ian.tang3@education.nsw.gov.au> or <jiayu.hu1@education.nsw.gov.au>.
