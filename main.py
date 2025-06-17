@@ -45,7 +45,8 @@ class region:
 class campfire:
     def __init__(self, cookable):
         # campfire values
-        self.firestatus = 0
+        self.dead = True
+        self.firestatus = -1
         self.cooking = []
 
         # campfire description at each stage
@@ -53,15 +54,23 @@ class campfire:
             5: "The fire is roaring.",
             4: "The fire crackles merrily.",
             3: "The fire wavers.",
-            2: "The fire flickers.",
+            2: "The fire is flickering.",
             1: "The embers smoulder.",
             0: "The coals are cold.",
+            -1: "The fire is dead."
         }
         self.cookable = cookable
 
+    def light_fire(self):
+        #lights fire at the start of the game
+        if self.dead:
+            self.firestatus = 2
+            self.dead = False
+
     def stoke_fire(self):
-        # sets firestatus to 5
-        self.firestatus = 5
+        # adds 1 to firestatus if it is less than 5
+        if not self.dead and self.firestatus < 5:
+            self.firestatus += 1
 
     def tick_fire(self):
         # ureturns any cooked food
@@ -98,7 +107,7 @@ class player:
     def __init__(self):
         # player values
         self.inventory = {"sharpened stick": 1}
-        self.temperature = 5
+        self.temperature = 0
         self.hp = 100  # health
         self.atkmult = 1  # attack multiplier
         self.hunger = 100
@@ -112,7 +121,7 @@ class player:
 
         # generates a message based on player temperature
         self.temperaturemessage = {
-            5: "You feel warm.",
+            5: "You feel hot.",
             4: "You feel warm.",
             3: "It is slightly chilly.",
             2: "The cold is starting to seep in.",
@@ -1361,6 +1370,10 @@ while Player.hp > 0:
     if Player.hp <= 0:
         break
 
+    if first_turn == True:
+        print()
+        print("Type 'help' for list of commands and tutorial.\n")
+    
     # updates the food statuses that are cooking in the fire, updates fire message
     cooked_food, firemessage = Fire.tick_fire()
 
@@ -1374,7 +1387,7 @@ while Player.hp > 0:
 
     # top status bar
     print(
-        f"|\U00002764: {Player.hp}|{Player.hungerbar}|{Map.map[Map.playerlocation].name}|"
+        f"|\U00002764: {Player.hp}|{Player.hungerbar}|{Map.map[Map.playerlocation].name}|\n"
     )
     print(firemessage)
     print(temperaturemessage)
@@ -1382,17 +1395,26 @@ while Player.hp > 0:
     # displays starving message
     if hungermessage != "":
         print(hungermessage)
-    if first_turn == True:
-        print("type 'help' for list of commands and tutorial")
-    act = input(">> ")
+    act = input("\n>> ")
     os.system("cls" if os.name == "nt" else "clear")
 
     # player command processing
 
-    # stokes the fire, updating fire value back to 5
-    if act.lower() == "stoke fire":
-        Fire.stoke_fire()
-        print("You stoke the coals and the fire blazes.")
+    # lights the fire
+    if act.lower() == "light fire":
+        if Fire.dead:
+            Fire.light_fire()
+            print("The light from the fire spills through the forest, out into the dark.\n")
+        else:
+            continue
+    
+    #stokes the fire
+    elif act.lower() == "stoke fire":
+        if not Fire.dead:
+            Fire.stoke_fire()
+            print("You stoke the coals and the fire blazes.\n")
+        else:
+            continue
 
     # returns random amount of items from biome loot pool
     elif act.lower() == "search":
@@ -1403,19 +1425,21 @@ while Player.hp > 0:
         else:
             for i in found_item:
                 Player.gain_object(i)
-            print(f"You search around and find {', '.join(found_item)}")
+            print(f"You look around and find {', '.join(found_item)}.\n")
 
     # displays player inventory
     elif act.lower() == "view inventory":
+        print("Inventory:")
         for i in Player.inventory.keys():
             print(f"{Player.inventory[i]}x {i}")
+        print()
 
     # displays most recent cooking item
     elif act.lower() == "view cooking":
         if Fire.cooking == []:
             print("Nothing is cooking.")
         else:
-            print(f"{Fire.cooking[0][0]} will be ready in {Fire.cooking[0][1]} turns.")
+            print(f"{Fire.cooking[0][0]} will be ready in {Fire.cooking[0][1]} turns.\n")
 
     # displays all unlocked crafting recipes
     elif act.lower() == "view crafting recipes":
@@ -1438,152 +1462,162 @@ while Player.hp > 0:
     # help and tutorial system
     elif act.lower() == "help":
         helping = True
+        mechanical_helping = False
         os.system("cls" if os.name == "nt" else "clear")
         while helping:
             os.system("cls" if os.name == "nt" else "clear")
-            print("INTRODUCTION")
-            print(
-                "Forest takes place in a post-apocalyptic wasteland, where the weather is forever a frosty -20 degrees. In order to survive this harsh landscape, you must trek through endless terrain, fight mutated monsters, and above all, survive."
-            )
-            print("[1]: Game mechanics")
-            print("[2]: Available commands")
-            print("[3]: Technical information")
-            print("[Any other button]: Exit help")
-            help_mode = input(">> ")
-            os.system("cls" if os.name == "nt" else "clear")
+            if not mechanical_helping:
+                print("INTRODUCTION\n")
+                print(
+                    "Forest takes place in a post-apocalyptic wasteland, where the weather is forever a frosty -20°C.\nIn order to survive this harsh landscape, you must trek through endless terrain, fight mutated monsters, and above all, survive.\n"
+                )
+                print("[1]: Game mechanics")
+                print("[2]: Available commands")
+                print("[3]: Technical information")
+                print("[Any other button]: Exit help")
+                help_mode = input("\n>> ")
+                os.system("cls" if os.name == "nt" else "clear")
 
             if help_mode == "1":
                 mechanical_helping = True
+                print("GAME MECHANICS\n")
+                print("[1]: The status bar")
+                print("[2]: Materials and crafting system")
+                print("[3]: Weapons, combat, moves, and effects")
+                print("[4]: Temperature, campfire, and cooking food")
+                print("[5]: Biomes, loot tables, and encounter values")
+                print("[Any other button]: Back")
+                mechanic_help_mode = input("\n>> ")
                 while mechanical_helping:
-                    print("[1]: The status bar")
-                    print("[2]: Materials and crafting system")
-                    print("[3]: Weapons, combat, moves, and effects")
-                    print("[4]: Temperature, campfire, and cooking food")
-                    print("[5]: Biomes, loot tables, and encounter values")
-                    print("[Any other button]: Back")
-                    mechanic_help_mode = input(">> ")
                     os.system("cls" if os.name == "nt" else "clear")
                     if mechanic_help_mode == "1":
+                        print("STATUS BAR\n")
                         print(
-                            "The status bar at the top of your screen gives you vital information to stay alive. It is split into a couple main components:"
+                            "The status bar at the top of your screen gives you vital information to stay alive. It is split into a couple main components:\n"
                         )
                         print(
-                            "1. Your health is at the very top right. It displays as a heart symbol and then a number out of 100. When you reach 0 health, the game ends."
+                            "1. Your health is at the very top right. It displays as a heart symbol and then a number out of 100. When you reach 0 health, the game ends.\n"
                         )
                         print(
-                            "2. The hunger bar is in the middle. It displays how much hunger you have left. Eat food to replenish hunger, with different foods replenishing different amounts. Get too low, and you will start to starve, taking damage."
+                            "2. The hunger bar is in the middle. It displays how much hunger you have left. Eat food to replenish your hunger.\nGet too low, and you will start to starve, taking damage.\n"
                         )
                         print(
-                            "3. The biome you're currently in is at the top right of the status bar. The biome determines what drops and encounters you will find. To learn more, visit [5]: Biomes, loot tables, and encounter values."
+                            "3. The biome you're currently in is at the top right of the status bar. The biome determines what drops and encounters you will find.\nTo learn more, visit [5]: Biomes, loot tables, and encounter values."
                         )
+                        if "" in input("\n[Any key to go back]"):
+                            help_mode = "1"
+                            break
 
                     elif mechanic_help_mode == "2":
+                        print("MATERIALS AND CRAFTING SYSTEM\n")
                         print(
-                            "This game also has a crafting system. In order to craft weapons and tools, you will first need to find materials."
+                            "This game also has a crafting system. In order to craft weapons and tools, you will first need to find materials.\n"
                         )
                         print(
-                            "Materials are gained randomly when searching, with different materials for different biomes."
+                            "Materials are gained randomly when searching, with different materials for different biomes.\n"
                         )
                         print(
-                            "In order to know which materials correspond to which biomes, visit [5]: Biomes, loot tables, and encounter values."
+                            "In order to know which materials correspond to which biomes, visit [5]: Biomes, loot tables, and encounter values.\n"
                         )
                         print(
                             "You can view the different crafting recipes available, and once you have enough materials, you can begin crafting."
                         )
+                        if "" in input("\n[Any key to go back]"):
+                            help_mode = "1"
+                            break
 
                     elif mechanic_help_mode == "3":
+                        print("WEAPONS, COMBAT, MOVES, AND EFFECTS\n")
                         print(
-                            "Along your travels, you may encounter different enemies, ranging from scavengers to mutated monstrosities."
+                            "Along your travels, you may encounter different enemies, ranging from scavengers to mutated monstrosities.\n"
                         )
                         print(
-                            "These will randomly appear every turn, and will enter into a turn based combat system."
+                            "These will randomly appear every turn, and will enter into a turn based combat system.\n"
                         )
                         print(
-                            "For each turn, you will perform an available move, and then the enemy will. Unlock more moves by crafting new weapons."
+                            "For each turn, you will perform an available move, and then the enemy will. Unlock more moves by crafting new weapons.\n"
                         )
                         print(
-                            "Each move will deal a certain amount of damage, heal for a certain amount, and grant shield."
+                            "Each move will deal a certain amount of damage, heal for a certain amount, and grant shield.\n"
                         )
                         print(
-                            "Shield can be used to block incoming damage, but be warned, every turn your shield will reduce by half."
+                            "Enemies will also drop loot once defeated. Some drop common loot you can find by searching, but others drop items necessary to craft powerful weapons."
                         )
-                        print(
-                            "Furthermore, each move will also inflict different types of effects."
-                        )
-                        for i in effects.keys():
-                            print(f"{i}: {effects[i].description}")
-                        print(
-                            "Enemies will also drop loot once defeated. Some may drop common loot you can find by searching, but others can drop items necessary to craft powerful weapons."
-                        )
+                        if "" in input("\n[Any key to go back]"):
+                            help_mode = "1"
+                            break
 
                     elif mechanic_help_mode == "4":
+                        print("TEMPERATURE, CAMPFIRE, AND COOKING FOOD\n")
                         print(
-                            "In this desolate wasteland, it is eternally cold. In order to avoid the cold, it is necessary to keep a fire burning at all times."
+                            "In this desolate wasteland, it is necessary to keep a fire burning at all times to keep the cold away.\n"
                         )
                         print(
-                            "A fire can help keep you warm, but you must stoke it to keep it burning. Fortunately (because the dev is very lazy), this does not require resources."
+                            "A fire can help keep you warm, but you must stoke it to keep it burning. Fortunately, this does not require resources.\n"
                         )
                         print(
-                            "If you don't stoke the fire enough, it will burn out, causing you to start freezing. Freeze for a long enough time and you will start taking damage."
+                            "If you don't stoke the fire enough, it will burn out, causing you to start freezing. Freeze for a long enough time and you will start taking damage.\n"
                         )
                         print(
-                            "A fire can also help cook food, some meats are cookable and will replenish more hunger when cooked."
+                            "A fire can also help cook food, some meats are cookable and will replenish more hunger when cooked.\n"
                         )
                         print(
                             "But beware, cooking an uncookable object gives you a charred mess, which will be inedible and unusable."
                         )
+                        if "" in input("\n[Any key to go back]"):
+                            help_mode = "1"
+                            break
 
                     elif mechanic_help_mode == "5":
+                        print("BIOMES, LOOT TABLES, AND ENCOUNTER VALUES\n")
                         print(
                             "There are many different biomes in this game, each one yielding different resources when searching: "
                         )
                         for i in BiomeList:
                             print(
-                                f">> {i}: {', '.join(list(BiomeList[i].loot_table.keys()))}"
+                                f"{i}: {', '.join(list(BiomeList[i].loot_table.keys()))}"
                             )
-
+                        print()
                         print("Different entities will also spawn in each biome: ")
                         for i in BiomeList:
                             print(
-                                f">> {i}: {', '.join(list(BiomeList[i].entity_encounters.keys()))}"
+                                f"{i}: {', '.join(list(BiomeList[i].entity_encounters.keys()))}"
                             )
+                        if "" in input("\n[Any key to go back]"):
+                            help_mode = "1"
+                            break
 
                     else:
                         mechanical_helping = False
 
             elif help_mode == "2":
+                print("AVAILABLE COMMANDS\n")
+                print("{ stoke fire } - stokes the fire\n")
+                print("{ search } - searches the biome for items\n")
+                print("{ view inventory } - view player inventory\n")
+                print("{ view cooking } - view most recent cooking item\n")
+                print("{ view crafting recipes } - views unlocked crafting recipes\n")
                 print(
-                    "key: [i] represents any item, [I] represents specific items (specified in brackets), [T] represents specific words (specified in brackets), { insert text here } represents what needs to be typed (excluding the curly brackets), - insert text here is a description of what the command does."
+                    "{ eat [item] } - eats the specified item (only edible items will be successfully eaten.)\n"
                 )
                 print(
-                    "e.g. { lorem ipsum } [I] - lorem ipsum dolor sit amet (lorem ipsum dolor)"
-                )
-                print(">> { stoke fire } - stokes the fire")
-                print(">> { search } - searches the biome for items")
-                print(">> { view inventory } - view player inventory")
-                print(">> { view cooking } - view most recent cooking item")
-                print(">> { view crafting recipes } - views unlocked crafting recipes")
-                print(
-                    ">> { eat [I] } - eats the specified item (only edible items will be successfully eaten.)"
+                    "{ cook [item] } - cooks the specified item (only cookable items will be succesfully cooked.)\n"
                 )
                 print(
-                    ">> { cook [I] } - cooks the specified item (uncookable items will return 'charred mess')"
+                    "{ move [direction] } - moves in specified direction (accepts 'up', 'down', 'left', 'right', 'north', 'south', 'east', 'west'.)\n"
                 )
                 print(
-                    ">> move [T] - moves in specified direction (accepts 'up', 'down', 'left', 'right', 'north', 'south', 'east', 'west')"
+                    "{ craft [item] } - crafts the specified item (will only craft if there are enough materials in player inventory.)"
                 )
-                print(
-                    ">> craft [I] - crafts the specified item (will only craft if there are enough materials in player inventory)"
-                )
-                print("[Any button]: Back")
-                input(">> ")
+                if "" in input("\n[Any key to go back]"):
+                    pass
 
             elif help_mode == "3":
-                print("Version 1.0.0")
-                print("Recommended python version: 3.12.3")
+                print("TECHNICAL INFORMATION\n")
+                print("Version: 1.0.0\n")
                 print("Error reporting: ian.tang3@education.nsw.gov.au")
-                print("[Any button]: Back")
-                input(">> ")
+                if "" in input("\n[Any key to go back]"):
+                    pass
 
             else:
                 helping = False
@@ -1595,7 +1629,7 @@ while Player.hp > 0:
             Player.eat_food(act, food_values[act])
             print(f"You swallow the {act} and feel less hungry.")
         elif act in Player.inventory.keys():
-            print("This... does not seem edible.")
+            print("This does not seem edible.")
         else:
             print("You can't seem to find that item.")
 
@@ -1638,11 +1672,17 @@ while Player.hp > 0:
                 for i in items[act].crafting_methods[0].keys():
                     for n in range(items[act].crafting_methods[0][i]):
                         Player.use_item(i)
-                print(f"You successfully craft a {act}")
+                if act[0] not in ["a", "e", "i", "o", "u"]:
+                    print(f"You successfully craft a {act}.")
+                else:
+                    print(f"You successfully craft an {act}.")
             else:
                 print("You don't seem to have enough materials...")
         else:
             print("That item does not exist.")
+    
+    else:
+        continue
 
     # ends first turn
     first_turn = False
