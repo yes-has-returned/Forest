@@ -708,7 +708,7 @@ while Player.hp > 0:
         enemy_facing = EnemyList[encounter_value]
         encounter_done = False
         turns = 0
-        input("Fight>> ")
+        input("Fight >> ")
 
         #main fight game loop
         while encounter_done == False:
@@ -791,7 +791,7 @@ while Player.hp > 0:
                         print(f"You inflict {i} on enemy {encounter_value}")
                     else:
                         print(f"You inflict {i} on enemy {encounter_value} for {e[i]} turns")
-            input("Press anything to continue>> ")
+            input("Press anything to continue >> ")
             os.system('cls' if os.name == 'nt' else 'clear')
 
             #inflicts damage and effects on opponent
@@ -819,7 +819,7 @@ while Player.hp > 0:
                         print(f"{encounter_value} inflicts {i} on you")
                     else:
                         print(f"{encounter_value} inflict {i} on you for {e[i]} turns")
-            input("Press anything to continue>> ")
+            input("Press anything to continue >> ")
             os.system('cls' if os.name == 'nt' else 'clear')
 
             #ticks enemy and player effects
@@ -837,7 +837,7 @@ while Player.hp > 0:
                     for i in loot:
                         Player.gain_object(i)
                     enemy_facing.reset()
-                    input("Press anything to continuie>> ")
+                    input("Press anything to continue >> ")
                     os.system('cls' if os.name == 'nt' else 'clear')
                 encounter_done = True
     #ends main game loop early if the player is dead from the encounter
