@@ -644,6 +644,7 @@ effects = {
 
 # dictionary of moves in the format "name":move(name, attack, effects inflicted on opponent, shield, health healed, type, effects applied to self, weapons the move is attached to)
 moves = {
+    "delete":move("delete", 100000, {}, 0, 0, "developer", {}, []),
     "punch": move("punch", 5, {}, 0, 0, "attacking", {}, []),
     "defensive_stance": move("defensive stance", 0, {}, 25, 0, "defending", {}, []),
     "heavy_swing": move(
@@ -1213,13 +1214,25 @@ Map = map(BiomeList)
 # boolean determining if it is the first turn
 first_turn = True
 
+encounter_value_override = None
+
+deletemode = False
+
+entity_override = False
+
 # main game loop
 while Player.hp > 0:
     # updates region
     encounter_value = Map.map[Map.playerlocation].tick_region()
 
+    #overrides encounter with summon command
+    if encounter_value_override != None and encounter_value_override in EnemyList.keys():
+        print(f"{encounter_value_override} successfully summoned.")
+        encounter_value = encounter_value_override
+    encounter_value_override = None
+
     # blocks encounter if it is the first turn
-    if encounter_value != None and first_turn == False:
+    if encounter_value != None and first_turn == False and entity_override == False:
 
         # entity attacking player message
         print(f"A {encounter_value} suddenly attacks you.")
@@ -1248,6 +1261,8 @@ while Player.hp > 0:
                         possible_moves.append(f)
             possible_moves.append(moves["punch"])
             possible_moves.append(moves["defensive_stance"])
+            if deletemode == True:
+                possible_moves.append(moves["delete"])
             for i in range(len(possible_moves)):
                 move_select_ui[str(i)] = possible_moves[i - 1]
             
@@ -1615,6 +1630,51 @@ while Player.hp > 0:
                     pass
             else:
                 helping = False
+
+    elif act.lower() == "devtools":
+        com = input(">> ").lower()
+
+        if com == "diagnose entities":
+            for i in EnemyList.keys():
+                print(f"{i}: hp{EnemyList[i].hp}|shield{EnemyList[i].shield}|atkmult{EnemyList[i].atkmult}|effects{EnemyList[i].effects}")
+
+        elif com == "toggle deletion":
+            if deletemode == True:
+                deletemode = False
+
+            else:
+                deletemode = True
+
+            print(f"entity deletion toggled to {deletemode}")
+
+        elif com == "max health":
+            Player.hp = 100
+
+        elif com == "toggle entity suppression":
+            if entity_override == True:
+                entity_override = False
+            else:
+                entity_override = True
+
+            print(f"entity suppression toggled to {entity_override}")
+
+        elif "summon" in com.lower().split(" ")[0]:
+            encounter_value_override = " ".join(com.lower().split(" ")[1:])
+
+        elif "forcereset" in com.lower().split(" ")[0]:
+            if " ".join(com.lower().split(" ")[1:]) in EnemyList.keys():
+                EnemyList[" ".join(com.lower().split(" ")[1:])].reset()
+
+        elif "give" in com.lower().split(" ")[0]:
+            if " ".join(com.lower().split(" ")[1:]) in items.keys():
+                comamount = input(">> ")
+                try:
+                    for i in range(int(comamount)):
+                        Player.gain_object(" ".join(com.lower().split(" ")[1:]))
+                    print(f"{comamount}x {" ".join(com.lower().split(" ")[1:])} given successfully")
+                except:
+                    pass
+
     
     # eats selected food if in food_values dict, otherwise, displays inedible message
     elif "eat" in act.lower().split(" ")[0]:
