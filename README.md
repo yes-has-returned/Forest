@@ -10,6 +10,7 @@ A text-based post-apocalyptic survival game.
 Initially meant to be an in-class activity for Software Engineering class but development has gone slightly out of hand.
 
 ## Game setup
+Download the entire project as a zip file, then open it with a Python-supportive code editor such as PyCharm or VSCode.
 ### Windows:
 Type the following command into the terminal:
 ```
