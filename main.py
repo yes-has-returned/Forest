@@ -216,9 +216,9 @@ class player:
                 self.hp, self.shield, self.atkmult, dmg = effects[i.split()[0]].tick(
                     self.hp, self.shield, self.atkmult, 0, 0
                 )
-                self.effects[i] -= 1
-                if self.effects[i] <= 0:
-                    remove_list.append(i)
+            self.effects[i] -= 1
+            if self.effects[i] <= 0:
+                remove_list.append(i)
                     
         # removes all effects on the remove list from the player's effects
         if remove_list != []:
@@ -445,13 +445,13 @@ class enemy:
 
         # updates all effects and adds all effects with duration 0 to remove_list
         for i in self.effects.keys():
-            for n in range(int(i.split()[0])):
-                self.hp, self.shield, self.atkmult, dmg = i.split()[0].tick(
+            for n in range(int(i.split()[-1])):
+                self.hp, self.shield, self.atkmult, dmg = effects[" ".join(i.split()[:-1])].tick(
                     self.hp, self.shield, self.atkmult, 0, 0
                 )
-                self.effects[i] -= 1
-                if self.effects[i] <= 0:
-                    remove_list.append(i)
+            self.effects[i] -= 1
+            if self.effects[i] <= 0:
+                remove_list.append(i)
         
         # removes all effect values in remove_list
         if remove_list != []:
@@ -596,10 +596,10 @@ class irradiated(effect):
         return entityhp, entityshield, entityatkmult, dmg
 
 
-class radiated_frenzy(effect):
+class irradiated_frenzy(effect):
     def __init__(self):
         super().__init__(
-            "radiated frenzy",
+            "irradiated frenzy",
             "Drives the user into a radiation induced rage, giving extra attack but also harming the user.",
         )
 
@@ -640,6 +640,7 @@ effects = {
     "rage": rage(),
     "irradiated": irradiated(),
     "offbalance": off_balance(),
+    "irradiated frenzy":irradiated_frenzy()
 }
 
 # dictionary of moves in the format "name":move(name, attack, effects inflicted on opponent, shield, health healed, type, effects applied to self, weapons the move is attached to)
@@ -1296,6 +1297,7 @@ while Player.hp > 0:
                 
             # lower status bar
             print(f"|\U00002764: {Player.hp}|\U0001f6e1  {Player.shield} |")
+            print(Player.effects)
             for i in Player.effects.keys():
                 print(f"{i} - {effects[i.split()[0]].description}")
             
