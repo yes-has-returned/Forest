@@ -83,15 +83,17 @@ class campfire:
                 else:
                     food = "burnt mess"
         firestatusstr = "The coals are cold."
-
+        died = False
         # returns the fire description based on the fire level
         if int(self.firestatus) in self.firestatusmessages.keys():
             firestatusstr = self.firestatusmessages[int(self.firestatus)]
         if self.firestatus > 0:
             self.firestatus -= 0.25
-            if self.firestatus < 0:
-                self.firestatus = 0
-        return food, firestatusstr
+            if self.firestatus <= 0:
+                self.firestatus = -1
+                self.dead = True
+                died = True
+        return food, firestatusstr, died
 
     def add_cooking(self, food, cookingdict):
         # adds a piece of food to the fire
@@ -1297,7 +1299,6 @@ while Player.hp > 0:
                 
             # lower status bar
             print(f"|\U00002764: {Player.hp}|\U0001f6e1  {Player.shield} |")
-            print(Player.effects)
             for i in Player.effects.keys():
                 print(f"{i} - {effects[i.split()[0]].description}")
             
@@ -1391,7 +1392,11 @@ while Player.hp > 0:
         print("Type 'help' for list of commands and tutorial.\n")
     
     # updates the food statuses that are cooking in the fire, updates fire message
-    cooked_food, firemessage = Fire.tick_fire()
+    cooked_food, firemessage, firedied = Fire.tick_fire()
+    if firedied == True:
+        print("The fire dies. You will have to light it again. ")
+    elif Fire.dead == True:
+        print("The fire is dead. You will have to light it again. ")
 
     # returns any finished cooking foods
     if cooked_food != None:
@@ -1605,6 +1610,7 @@ while Player.hp > 0:
                         mechanical_helping = False
             elif help_mode == "2":
                 print("AVAILABLE COMMANDS\n")
+                print("{ light fire } - starts the fire\n")
                 print("{ stoke fire } - stokes the fire\n")
                 print("{ search } - searches the biome for items\n")
                 print("{ view inventory } - view player inventory\n")
