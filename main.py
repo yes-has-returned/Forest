@@ -107,7 +107,7 @@ class campfire:
 class player:
     def __init__(self):
         # player values
-        self.inventory = {"sharpened stick": 1}
+        self.inventory = {"sharpened stick": 1, "geiger counter": 1}
         self.temperature = 0
         self.hp = 100  # health
         self.atkmult = 1  # attack multiplier
@@ -956,7 +956,7 @@ BiomeList = {
     ),
     "Nuclear Wasteland": region(
         {"irradiated meat": 10},
-        "It feels unsettling, the radiation there but unfelt. The barren grey earth indicates nothing will grow here. You should leave.",
+        "It feels unsettling, the radiation there but unfelt. The barren grey earth indicates no vegetation or signs of life.\n\nYour geiger counter's clicks rapidly blend into a shrill hum.",
         "Nuclear Wasteland",
         {"mutated wolf": 20, "scavenger": 10, "gaunt man": 5, "mutated monstrosity": 1},
     ),
@@ -1230,7 +1230,7 @@ while Player.hp > 0:
 
     #overrides encounter with summon command
     if encounter_value_override != None and encounter_value_override in EnemyList.keys():
-        print(f"{encounter_value_override} successfully summoned.")
+        print(f"{encounter_value_override} successfully summoned.\n")
         encounter_value = encounter_value_override
     encounter_value_override = None
 
@@ -1238,7 +1238,52 @@ while Player.hp > 0:
     if encounter_value != None and first_turn == False and entity_override == False:
 
         # entity attacking player message
-        print(f"A {encounter_value} suddenly attacks you.")
+        if Map.map[Map.playerlocation].name == "Grassland":
+            if encounter_value == "scavenger":
+                print(f"A {encounter_value} lunges from behind the tall grass, blades flashing.\n")
+            elif encounter_value == "poisonous lizard":
+                print(f"A hissing {encounter_value} crawls into the open.\n")
+            elif encounter_value == "rich man":
+                print(f"A {encounter_value} charges towards you, ready to fight.\n")
+        elif Map.map[Map.playerlocation].name == "Forest":
+            if encounter_value == "scavenger":
+                print(f"You hear a screech as a {encounter_value} leaps out from behind a tree.\n")
+            elif encounter_value == "wolf":
+                print(f"A snarling {encounter_value} springs at you from the underbrush.\n")
+            elif encounter_value == "rich man":
+                print(f"A {encounter_value} suddenly appears and attacks you.\n")
+        elif Map.map[Map.playerlocation].name == "Tundra":
+            if encounter_value == "scavenger":
+                print(f"A {encounter_value}, wrapped in furs, runs at you with its sword drawn.\n")
+            elif encounter_value == "gaunt man":
+                print(f"A {encounter_value} attacks with a crazed look in his eyes.\n")
+        elif Map.map[Map.playerlocation].name == "Nuclear Wasteland":
+            if encounter_value == "mutated wolf":
+                print(f"A {encounter_value} lunges at you, eyes glowing with hunger.\n")
+            elif encounter_value == "scavenger":
+                print(f"A lone {encounter_value}, dressed in rags, hurls a piece of debris at you.\n")
+            elif encounter_value == "gaunt man":
+                print(f"A {encounter_value} runs at you, hands outstretched.\n")
+            elif encounter_value == "mutated monstrosity":
+                print(f"A {encounter_value} charges at you, its many eyes glowing with rage.\n")
+        elif Map.map[Map.playerlocation].name == "Jungle":
+            if encounter_value == "scavenger":
+                print(f"A {encounter_value} slashes at you with a rusted dagger.\n")
+            elif encounter_value == "wolf":
+                print(f"A {encounter_value} lunges at you, fangs bared.\n")
+            elif encounter_value == "wolf pack":
+                print(f"Howls surround you as a hungry {encounter_value} stalks out from the undergrowth.\n")
+            elif encounter_value == "baboon":
+                print(f"A {encounter_value} charges at you, head-on.\n")
+            elif encounter_value == "monkey":
+                print(f"A {encounter_value} swings down from the trees and screeches at you.\n")
+        elif Map.map[Map.playerlocation].name == "Desert":
+            if encounter_value == "scavenger":
+                print(f"A parched {encounter_value} raises his blade, ready to fight.\n")
+            elif encounter_value == "gaunt man":
+                print(f"A {encounter_value} staggers towards you, a crazed look in his eyes.\n")
+            elif encounter_value == "shrivelled husk":
+                print(f"A {encounter_value} rises from the sand and shuffles towards you.\n")
         enemy_facing = EnemyList[encounter_value]
         encounter_done = False
         turns = 0
@@ -1303,10 +1348,10 @@ while Player.hp > 0:
                 print(f"{i} - {effects[i.split()[0]].description}")
             
             # player move selection input
-            move_input = input("move number >> ")
+            move_input = input("Move number >> ")
             while move_input not in move_select_ui.keys():
                 # asks for input again when input is invalid
-                move_input = input("move number >> ")
+                move_input = input("Move number >> ")
             
             # pulls the details of selected move
             d, s, h, se, e = move_select_ui[move_input].tick()
@@ -1372,7 +1417,7 @@ while Player.hp > 0:
             # processes loot drops and adds it to player inventory
             if Player.hp <= 0 or enemy_facing.hp <= 0:
                 if enemy_facing.hp <= 0:
-                    print(f"You successfully defeated {encounter_value}")
+                    print(f"You successfully defeated {encounter_value}.")
                     loot = []
                     for i in range(enemy_facing.drop_number):
                         loot.append(choice(enemy_facing.drops))
@@ -1394,9 +1439,9 @@ while Player.hp > 0:
     # updates the food statuses that are cooking in the fire, updates fire message
     cooked_food, firemessage, firedied = Fire.tick_fire()
     if firedied == True:
-        print("The fire dies. You will have to light it again. ")
+        print(f"The fire sputters and dies. Darkness descends upon the {Map.map[Map.playerlocation].name.lower()}.\n")
     elif Fire.dead == True:
-        print("The fire is dead. You will have to light it again. ")
+        pass
 
     # returns any finished cooking foods
     if cooked_food != None:
@@ -1406,6 +1451,20 @@ while Player.hp > 0:
     # updates player hp according to the temperature
     hungermessage, temperaturemessage = Player.tick_player(Fire.firestatus)
 
+    #random messages
+    if not first_turn:
+        if randint(1, 10) == 1:
+            if Map.map[Map.playerlocation].name == "Forest" or Map.map[Map.playerlocation].name == "Jungle":
+                print("A lone howl pierces the night.\n")
+            elif Map.map[Map.playerlocation].name == "Grassland":
+                print("The breeze rustles the tall grass.\n")
+            elif Map.map[Map.playerlocation].name == "Tundra" or Map.map[Map.playerlocation].name == "Desert":
+                print("The wind howls across the barren landscape.\n")
+            elif Map.map[Map.playerlocation].name == "Nuclear Wasteland":
+                print("The night is eerily quiet.\n")
+        if randint(1, 10) == 1:
+            print("Your geiger counter clicks.\n")
+    
     # top status bar
     print(
         f"|\U00002764: {Player.hp}|{Player.hungerbar}|{Map.map[Map.playerlocation].name}|\n"
@@ -1454,7 +1513,7 @@ while Player.hp > 0:
     elif act.lower() == "view inventory":
         print("Inventory:")
         for i in Player.inventory.keys():
-            print(f"{Player.inventory[i]}x {i}")
+            print(f"{Player.inventory[i]} x {i}")
         print()
     
     # displays most recent cooking item
@@ -1664,7 +1723,7 @@ while Player.hp > 0:
             else:
                 entity_override = True
 
-            print(f"entity suppression toggled to {entity_override}")
+            print(f"Entity suppression toggled to {entity_override}.\n")
 
         elif "summon" in com.lower().split(" ")[0]:
             encounter_value_override = " ".join(com.lower().split(" ")[1:])
@@ -1679,9 +1738,9 @@ while Player.hp > 0:
                 try:
                     for i in range(int(comamount)):
                         Player.gain_object(" ".join(com.lower().split(" ")[1:]))
-                    print(f"{comamount}x {" ".join(com.lower().split(" ")[1:])} given successfully")
+                    print(f"{comamount} x {' '.join(com.lower().split(' ')[1:])} given successfully.\n")
                 except:
-                    pass
+                    os.system("cls" if os.name == "nt" else "clear")
 
     
     # eats selected food if in food_values dict, otherwise, displays inedible message
@@ -1689,11 +1748,11 @@ while Player.hp > 0:
         act = act.replace("eat ", "")
         if act in Player.inventory.keys() and act in food_values.keys():
             Player.eat_food(act, food_values[act])
-            print(f"You swallow the {act} and feel less hungry.")
+            print(f"You swallow the {act} and feel less hungry.\n")
         elif act in Player.inventory.keys():
-            print("This does not seem edible.")
+            print("This does not seem edible.\n")
         else:
-            print("You can't seem to find that item.")
+            print("You can't seem to find that item.\n")
     
     # cooks selected item, returning cooked (insert item name here) if in cook_values dict, otherwise, returns a charred mess
     elif "cook" in act.lower().split(" ")[0]:
@@ -1701,16 +1760,16 @@ while Player.hp > 0:
         if act in Player.inventory.keys():
             Fire.add_cooking(act, cook_values)
             Player.use_item(act)
-            print(f"You add {act} to the fire.")
+            print(f"You add {act} to the fire.\n")
         else:
-            print("You can't seem to find that item.")
+            print("You can't seem to find that item.\n")
             
     # moves player around the map, generating a biome if they haven't been there before
     elif "move" in act.lower().split(" ")[0]:
         act = act.lower().replace("move ", "")
         moved = Map.moveplayer(act)
         if moved == False:
-            print("You cannot move in that direction.")
+            print("You cannot move in that direction.\n")
         else:
             print(Map.map[Map.playerlocation].description)
             
@@ -1734,13 +1793,13 @@ while Player.hp > 0:
                     for n in range(items[act].crafting_methods[0][i]):
                         Player.use_item(i)
                 if act[0] not in ["a", "e", "i", "o", "u"]:
-                    print(f"You successfully craft a {act}.")
+                    print(f"You successfully craft a {act}.\n")
                 else:
-                    print(f"You successfully craft an {act}.")
+                    print(f"You successfully craft an {act}.\n")
             else:
-                print("You don't seem to have enough materials...")
+                print("You don't seem to have enough materials...\n")
         else:
-            print("That item does not exist.")
+            print("That item does not exist.\n")
     else:
         continue
     
