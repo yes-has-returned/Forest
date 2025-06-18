@@ -1,14 +1,29 @@
 # New Updates and Features
 
-## Version 1.0.2
- - more craftable early-game and mid-game weapons and items
- - radiation levels
+## Previous Updates
 
-## Version 1.0.3
- - structures
+### Version 1.0.0
+- Initial game
 
-## Version 1.0.4
- - trading
+## Version 1.0.1 (current version)
+- Added "radiation" levels
+- Patched major errors and bug fixes
 
-## Version 1.0.5
- - wanderers
+## Future Updates
+
+### Version 1.0.2
+ - Adding more craftable early-game and mid-game weapons and items
+ - Implementing working radiation levels
+ - Bug fixes and patches
+
+### Version 1.0.3
+ - Adding structures
+ - Bug fixes and patches
+
+### Version 1.0.4
+ - Adding a trading system
+ - Bug fixes and patches
+
+### Version 1.0.5
+ - Adding more entities such as wanderers
+ - Bug fixes and patches
