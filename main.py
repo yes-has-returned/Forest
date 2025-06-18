@@ -431,6 +431,8 @@ class enemy:
         # updates effects based on the move
         for i in moveselect.selfeffects.keys():
             self.effects[i] = moveselect.selfeffects[i]
+
+        self.pattern_position += 1
         
         # returns all values of the move
         return (
@@ -715,7 +717,7 @@ moves = {
         0,
         0,
         "attacking",
-        {"irradiated frenzy 1": None},
+        {"irradiated frenzy 1": 3},
         [],
     ),
     "irradiated_reinforcement": move(
@@ -1201,6 +1203,7 @@ food_values = {
     "cooked rotting meat": 10,
     "elk meat": 30,
     "cooked elk meat": 60,
+    "berries":5
 }
 
 # dictionary of cookable foods and their cooking times
@@ -1220,6 +1223,8 @@ first_turn = True
 encounter_value_override = None
 
 deletemode = False
+
+invincibility = False
 
 entity_override = False
 
@@ -1389,24 +1394,32 @@ while Player.hp > 0:
             # pulls details of enemy move
             d, e, h, s, se, movechosen = enemy_facing.self_turn()
             d = int(d * enemy_facing.atkmult)
+            dorig = d
+            eorig = e
+
+            if invincibility == True:
+                d = 0
+                e = {}
 
             # inflicts damage and effects on player
             Player.opp_turn(d, e)
 
             # displays the effects of opponent's turn
             print(f"{encounter_value} used {movechosen}")
-            print(f"{encounter_value} deals {d} damage to you")
+            print(f"{encounter_value} deals {dorig} damage to you")
             print(f"{encounter_value} gains {s} shield")
             print(f"{encounter_value} heals for {h} health")
             if se != {}:
                 for i in se.keys():
                     print(f"{encounter_value} gains {i} for {se[i]} turns")
-            if e != {}:
-                for i in e.keys():
-                    if e[i] == None:
+            if eorig != {}:
+                for i in eorig.keys():
+                    if eorig[i] == None:
                         print(f"{encounter_value} inflicts {i} on you")
                     else:
-                        print(f"{encounter_value} inflict {i} on you for {e[i]} turns")
+                        print(f"{encounter_value} inflict {i} on you for {eorig[i]} turns")
+            if invincibility == True:
+                print("All damage was blocked by your invincibility. ")
             input("Press anything to continue >> ")
             os.system("cls" if os.name == "nt" else "clear")
 
@@ -1722,8 +1735,16 @@ while Player.hp > 0:
                 entity_override = False
             else:
                 entity_override = True
-
             print(f"Entity suppression toggled to {entity_override}.\n")
+
+        elif com == "toggle invincibility":
+            if invincibility == True:
+                invincibility = False
+            else:
+                invincibility = True
+            print(f"Invincibility toggled to  {invincibility}. \n")
+
+
 
         elif "summon" in com.lower().split(" ")[0]:
             encounter_value_override = " ".join(com.lower().split(" ")[1:])
