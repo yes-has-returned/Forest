@@ -1703,8 +1703,11 @@ while Player.hp > 0:
                 if "" in input("\n[Any key to go back]"):
                     pass
             elif help_mode == "3":
+                print("CHANGELOG")
+                print("Version 1.0.0 - launched game (16/6/25)\n")
+                print("Version 1.0.1 - miscellaneous bug fixes and format updates (18/6/25)")
                 print("TECHNICAL INFORMATION\n")
-                print("Version: 1.0.0\n")
+                print("Version: 1.0.1\n")
                 print("Error reporting: ian.tang3@education.nsw.gov.au")
                 if "" in input("\n[Any key to go back]"):
                     pass
