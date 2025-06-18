@@ -5,12 +5,14 @@ from random import choice, randint
 
 # class for each region or biome of a map, encompassing its information
 class region:
-    def __init__(self, loot_table, description, name, entity_encounters):
+    def __init__(self, loot_table, description, name, entity_encounters, background_message, radiation):
         # region values
         self.loot_table = loot_table
         self.description = description
         self.name = name
         self.entity_encounters = entity_encounters
+        self.background_message = background_message
+        self.radiation = radiation
 
     def tick_region(self):
         # generates a regional encounter, returns None if nothing is encountered, otherwise returns a string representing an enemy
@@ -115,11 +117,21 @@ class player:
         self.shield = 0
         self.hungerbar = ""
         self.effects = {}
+        self.radiation = 0
+        self.radiationbar = "\U00002622"
+        for i in range(math.ceil(self.radiation / 100)):
+            self.radiationbar += ">"
+        
+        for i in range(11-len(list(self.radiationbar))):
+            self.radiationbar += "-"
+
+        self.radiationbar += "\U0001F480"
 
         # generates the hunger bar
         for i in range(math.ceil(self.hunger / 10)):
             self.hungerbar += "\U0001f356"
-            
+           
+
         # generates a message based on player temperature
         self.temperaturemessage = {
             5: "You feel hot.",
@@ -137,7 +149,7 @@ class player:
         else:
             self.inventory[object] += 1
 
-    def tick_player(self, outside_temp_level):
+    def tick_player(self, outside_temp_level, radiation_level):
         # updates the player's health according to the temperature
         if outside_temp_level > self.temperature:
             self.temperature += 1
@@ -157,6 +169,14 @@ class player:
         if self.hp > 100:
             self.hp = 100
         self.hunger -= 1
+        self.radiation += radiation_level
+        if self.radiation >= 1000:
+            self.radiation = 1000
+            radiationsicknessmessage = "You taste blood and your head begins to swim."
+            self.hp -= 10
+        else:
+            radiationsicknessmessage = ""
+
 
         # returns message based on hunger
         if self.hunger <= 0:
@@ -172,9 +192,18 @@ class player:
             self.hungerbar += "\U0001f356"
         for i in range(10 - math.ceil(self.hunger / 10)):
             self.hungerbar += "\U0000274c"
+
+        self.radiationbar = "\U00002622"
+        for i in range(math.ceil(self.radiation / 100)):
+            self.radiationbar += ">"
+        
+        for i in range(11-len(list(self.radiationbar))):
+            self.radiationbar += "-"
+
+        self.radiationbar += "\U0001F480"
             
         # returns all values
-        return self.temperaturemessage[self.temperature], hungermessage
+        return self.temperaturemessage[self.temperature], hungermessage, radiationsicknessmessage
 
     def eat_food(self, food_name, food_val):
         # eat inputed food name
@@ -935,6 +964,8 @@ BiomeList = {
         "Long grass stretches for miles, many grasses growing up to your knees. Who knows what it could conceal...",
         "Grassland",
         {"scavenger": 10, "poisonous lizard": 20, "rich man": 1},
+        "The breeze rustles the tall grass.\n",
+        3,
     ),
     "Forest": region(
         {
@@ -949,18 +980,24 @@ BiomeList = {
         "The leafy green forest seems almost vibrant against the eternally grey clouds. It seems alluring, too alluring...",
         "Forest",
         {"scavenger": 10, "wolf": 15, "rich man": 1},
+        "A lone howl pierces the night.\n",
+        2,
     ),
     "Tundra": region(
         {"berries": 10, "elk meat": 5, "stones": 3},
         "The tundra white seems to almost blend in with the grey sky. Faded green bushes poke out here and there.",
         "Tundra",
         {"scavenger": 10, "gaunt man": 20},
+        "The wind howls across the barren landscape.\n",
+        4,
     ),
     "Nuclear Wasteland": region(
         {"irradiated meat": 10},
         "It feels unsettling, the radiation there but unfelt. The barren grey earth indicates no vegetation or signs of life.\n\nYour geiger counter's clicks rapidly blend into a shrill hum.",
         "Nuclear Wasteland",
         {"mutated wolf": 20, "scavenger": 10, "gaunt man": 5, "mutated monstrosity": 1},
+        "The night is eerily quiet.\n",
+        10,
     ),
     "Jungle": region(
         {
@@ -974,12 +1011,16 @@ BiomeList = {
         "The jungle is thick, bird calls and animal howls echoing underneath the canopy. The lush vegetation obscures sight.",
         "Jungle",
         {"scavenger": 10, "wolf": 30, "wolf pack": 10, "baboon": 5, "monkey": 15},
+        "A lone howl pierces the night.\n",
+        2,
     ),
     "Desert": region(
         {"sand": 30, "cactus": 10},
         "The desert stretches for miles, the once burning sands partially turned to glass from nuclear blasts.",
         "Desert",
         {"scavenger": 10, "gaunt man": 20, "shrivelled husk": 10},
+        "The wind howls across the barren landscape.\n",
+        6,
     ),
 }
 
@@ -1462,28 +1503,22 @@ while Player.hp > 0:
         Player.gain_object(cooked_food)
     
     # updates player hp according to the temperature
-    hungermessage, temperaturemessage = Player.tick_player(Fire.firestatus)
+    hungermessage, temperaturemessage, radiationmessage = Player.tick_player(Fire.firestatus, Map.map[Map.playerlocation].radiation)
 
     #random messages
     if not first_turn:
-        if randint(1, 10) == 1:
-            if Map.map[Map.playerlocation].name == "Forest" or Map.map[Map.playerlocation].name == "Jungle":
-                print("A lone howl pierces the night.\n")
-            elif Map.map[Map.playerlocation].name == "Grassland":
-                print("The breeze rustles the tall grass.\n")
-            elif Map.map[Map.playerlocation].name == "Tundra" or Map.map[Map.playerlocation].name == "Desert":
-                print("The wind howls across the barren landscape.\n")
-            elif Map.map[Map.playerlocation].name == "Nuclear Wasteland":
-                print("The night is eerily quiet.\n")
+        if randint(1,10) == 1:
+            print(Map.map[Map.playerlocation].background_message)
         if randint(1, 10) == 1:
             print("Your geiger counter clicks.\n")
     
     # top status bar
     print(
-        f"|\U00002764: {Player.hp}|{Player.hungerbar}|{Map.map[Map.playerlocation].name}|\n"
+        f"|\U00002764: {Player.hp}|{Player.hungerbar}|{Player.radiationbar}|{Map.map[Map.playerlocation].name}|\n"
     )
     print(firemessage)
     print(temperaturemessage)
+    print(radiationmessage)
 
     # displays starving message
     if hungermessage != "":
@@ -1705,7 +1740,7 @@ while Player.hp > 0:
             elif help_mode == "3":
                 print("CHANGELOG")
                 print("Version 1.0.0 - launched game (16/6/25)\n")
-                print("Version 1.0.1 - miscellaneous bug fixes and format updates (18/6/25)")
+                print("Version 1.0.1 - miscellaneous bug fixes and format updates (18/6/25)\n")
                 print("TECHNICAL INFORMATION\n")
                 print("Version: 1.0.1\n")
                 print("Error reporting: ian.tang3@education.nsw.gov.au")
