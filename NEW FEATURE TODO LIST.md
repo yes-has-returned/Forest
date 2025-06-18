@@ -1,5 +1,5 @@
 version 1.0.2
- - more weapons (midgame and early game)
+ - more craftable early-game and mid-game weapons and items
  - radiation levels
 
 version 1.0.3
