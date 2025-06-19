@@ -1551,7 +1551,7 @@ while Player.hp > 0:
         found_item = Map.map[Map.playerlocation].search_region()
         found_item = [i for i in found_item if i != None]
         if found_item == []:
-            print("You can't seem to find anything.")
+            print("You can't seem to find anything.\n")
         else:
             for i in found_item:
                 Player.gain_object(i)
@@ -1590,6 +1590,7 @@ while Player.hp > 0:
                 for j in craftable_recipes[i][0].keys():
                     materials_str += f"{craftable_recipes[i][0][j]} x {j}, "
                 print(f"{i}: {materials_str}")
+            print()
     
     # help and tutorial system
     elif act.lower() == "help":
@@ -1630,10 +1631,13 @@ while Player.hp > 0:
                             "1. Your health is at the very top right. It displays as a heart symbol and then a number out of 100. When you reach 0 health, the game ends.\n"
                         )
                         print(
-                            "2. The hunger bar is in the middle. It displays how much hunger you have left. Eat food to replenish your hunger.\nGet too low, and you will start to starve, taking damage.\n"
+                            "2. The hunger bar is second from the left. It displays how much hunger you have left. Eat food to replenish your hunger.\nGet too low, and you will start to starve, taking damage.\n"
                         )
                         print(
-                            "3. The biome you're currently in is at the top right of the status bar. The biome determines what drops and encounters you will find.\nTo learn more, visit [5]: Biomes, loot tables, and encounter values."
+                            "3. The radiation bar is third from the left. It displays the dose of radiation you have recieved so far. When it reaches dangerously high levels, you will begin to take damage.\n"
+                        )
+                        print(
+                            "4. The biome you're currently in is at the top right of the status bar. The biome determines what drops and encounters you will find.\nTo learn more, visit [5]: Biomes, loot tables, and encounter values."
                         )
                         if "" in input("\n[Any key to go back]"):
                             help_mode = "1"
