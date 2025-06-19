@@ -1758,11 +1758,11 @@ while Player.hp > 0:
                     pass
             elif help_mode == "3":
                 print("CHANGELOG")
-                print("Version 1.0.0 - launched game (16/6/25)\n")
+                print("Version 1.0.0 - launched game (16/6/25)")
                 print("Version 1.0.1 - miscellaneous bug fixes and format updates (18/6/25)\n")
-                print("TECHNICAL INFORMATION\n")
+                print("TECHNICAL INFORMATION")
                 print("Version: 1.0.1\n")
-                print("Error reporting: ian.tang3@education.nsw.gov.au")
+                print("Error reporting: ian.tang3@education.nsw.gov.au or jiayu.hu1@education.nsw.gov.au")
                 if "" in input("\n[Any key to go back]"):
                     pass
             else:
