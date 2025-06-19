@@ -19,6 +19,7 @@
 
 ### Version 1.0.3
  - Adding structures
+ - Updated combat system
  - Bug fixes and patches
 
 ### Version 1.0.4
