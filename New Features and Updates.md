@@ -8,7 +8,7 @@ Released: 16/06/2025
 
 ## Version 1.0.1 (current version)
 Released: 18/06/2025
-- Added "radiation" levels
+- Added radiation levels
 - Fixed game formatting and UI
 - Patched major errors and bug fixes
 
@@ -17,7 +17,7 @@ Released: 18/06/2025
 ### Version 1.0.2
 Release date: 01/07/2025
  - Adding more craftable early-game and mid-game weapons and items
- - Implementing working radiation levels
+ - Adding more actions and biomes
  - Bug fixes and patches
 
 ### Version 1.0.3
