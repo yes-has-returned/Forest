@@ -3,10 +3,11 @@
 ## Previous Updates
 
 ### Version 1.0.0
-- Initial game
+- Initial game design
 
 ## Version 1.0.1 (current version)
 - Added "radiation" levels
+- Fixed game formatting and UI
 - Patched major errors and bug fixes
 
 ## Future Updates
