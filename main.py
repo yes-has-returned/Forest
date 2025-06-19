@@ -5,15 +5,7 @@ from random import choice, randint
 
 # class for each region or biome of a map, encompassing its information
 class region:
-    def __init__(
-        self,
-        loot_table,
-        description,
-        name,
-        entity_encounters,
-        background_message,
-        radiation,
-    ):
+    def __init__(self, loot_table, description, name, entity_encounters, background_message, radiation):
         # region values
         self.loot_table = loot_table
         self.description = description
@@ -94,7 +86,6 @@ class campfire:
                     food = "burnt mess"
         firestatusstr = "The coals are cold."
         died = False
-        
         # returns the fire description based on the fire level
         if int(self.firestatus) in self.firestatusmessages.keys():
             firestatusstr = self.firestatusmessages[int(self.firestatus)]
@@ -130,14 +121,17 @@ class player:
         self.radiationbar = "\U00002622"
         for i in range(math.ceil(self.radiation / 100)):
             self.radiationbar += ">"
-        for i in range(11 - len(list(self.radiationbar))):
+        
+        for i in range(11-len(list(self.radiationbar))):
             self.radiationbar += "-"
-        self.radiationbar += "\U0001f480"
+
+        self.radiationbar += "\U0001F480"
 
         # generates the hunger bar
         for i in range(math.ceil(self.hunger / 10)):
             self.hungerbar += "\U0001f356"
-        
+           
+
         # generates a message based on player temperature
         self.temperaturemessage = {
             5: "You feel hot.",
@@ -149,7 +143,6 @@ class player:
         }
 
     def gain_object(self, object):
-        
         # adds an object to a player's inventory
         if object not in self.inventory.keys():
             self.inventory[object] = 1
@@ -168,7 +161,7 @@ class player:
                 self.temperature = 0
         if self.temperature == 0:
             self.hp -= 2
-        
+            
         # regenerates player health
         self.hp += 1
         
@@ -183,7 +176,8 @@ class player:
             self.hp -= 10
         else:
             radiationsicknessmessage = ""
-        
+
+
         # returns message based on hunger
         if self.hunger <= 0:
             self.hunger = 0
@@ -191,26 +185,25 @@ class player:
             self.hp -= 5
         else:
             hungermessage = ""
-        
+            
         # updates hunger bar
         self.hungerbar = ""
         for i in range(math.ceil(self.hunger / 10)):
             self.hungerbar += "\U0001f356"
         for i in range(10 - math.ceil(self.hunger / 10)):
             self.hungerbar += "\U0000274c"
+
         self.radiationbar = "\U00002622"
         for i in range(math.ceil(self.radiation / 100)):
             self.radiationbar += ">"
-        for i in range(11 - len(list(self.radiationbar))):
+        
+        for i in range(11-len(list(self.radiationbar))):
             self.radiationbar += "-"
-        self.radiationbar += "\U0001f480"
 
+        self.radiationbar += "\U0001F480"
+            
         # returns all values
-        return (
-            hungermessage,
-            self.temperaturemessage[self.temperature],
-            radiationsicknessmessage,
-        )
+        return self.temperaturemessage[self.temperature], hungermessage, radiationsicknessmessage
 
     def eat_food(self, food_name, food_val):
         # eat inputed food name
@@ -233,7 +226,7 @@ class player:
         if self.shield < 0:
             self.hp += self.shield
             self.shield = 0
-        
+            
         # adds effects inflicted to the player's effects
         if opp_effects != {}:
             for i in opp_effects.keys():
@@ -241,12 +234,12 @@ class player:
                     self.effects[i] = opp_effects[i]
                 else:
                     for n in range(int(i.split()[1])):
-                        effects[i.split()[0]].tick(
+                        self.hp, self.shield, self.atkmult, dmg = effects[i.split()[0]].tick(
                             self.hp, self.shield, self.atkmult, 0, opp_dmg
                         )
 
     def tick(self):
-
+        
         # ticks all effects on the player, reducing the duration of all of them by 1, any effects with a duration of 0 are added to the remove list
         remove_list = []
         for i in self.effects.keys():
@@ -257,12 +250,12 @@ class player:
             self.effects[i] -= 1
             if self.effects[i] <= 0:
                 remove_list.append(i)
-        
+                    
         # removes all effects on the remove list from the player's effects
         if remove_list != []:
             for i in remove_list:
                 self.effects.pop(i)
-        
+                
         # transitions any damage not taken by shield to the player's health
         if self.shield < 0:
             self.hp -= self.shield
@@ -271,6 +264,7 @@ class player:
         self.hp = int(self.hp)
 
     def self_turn(self, shield, health, selfeffects):
+        
         # updates player's values
         self.hp += health
         if self.hp > 100:
@@ -283,7 +277,7 @@ class player:
 # class representing the map
 class map:
     def __init__(self, biomelist):
-
+        
         # inputs possible biomes, accepts a list of region() classes as an input
         self.biomelist = biomelist
 
@@ -339,9 +333,10 @@ class map:
             or direction == "e"
         ):
             self.playerlocation = (self.playerlocation[0] + 1, self.playerlocation[1])
+            
         # generates the biome the player is on
         self.generatebiome(self.playerlocation)
-
+        
         # returns False if the player coordinates have not changed, returns True if the player coordinates have changed
         if previouscoords == self.playerlocation:
             return False
@@ -360,7 +355,6 @@ class item:
 # class representing a tool (currently unused)
 class tool(item):
     def __init__(self, name, weight, crafting_methods, durability, use):
-        
         # sets tool values
         super().__init__(name, weight, crafting_methods)
         self.durability = durability
@@ -439,8 +433,8 @@ class enemy:
         if self.shield < 0:
             self.hp += self.shield
             self.shield = 0
-        
-        # updates effects based on the effects inflicted by the move
+            
+        # updates effects based on the effects inflicted by the mov
         if opp_effect != {}:
             for i in opp_effect.keys():
                 if opp_effect[i] != None:
@@ -451,13 +445,15 @@ class enemy:
                             self.hp, self.shield, self.atkmult, 0, opp_atk
                         )
 
-    def self_turn(self):
+    def self_turn(self, opponent_fleeing):
         # determines the move based on the move pattern
         moveselect = choice(
             self.move_types[
                 self.move_pattern[self.pattern_position % (len(self.move_pattern))]
             ]
         )
+        if opponent_fleeing == True and "attacking" in self.move_types.keys():
+            moveselect = choice(self.move_types["attacking"])
 
         # updates health and shield based on the move
         self.hp += moveselect.hpgain
@@ -466,8 +462,9 @@ class enemy:
         # updates effects based on the move
         for i in moveselect.selfeffects.keys():
             self.effects[i] = moveselect.selfeffects[i]
-        self.pattern_position += 1
 
+        self.pattern_position += 1
+        
         # returns all values of the move
         return (
             moveselect.dmg,
@@ -484,9 +481,9 @@ class enemy:
         # updates all effects and adds all effects with duration 0 to remove_list
         for i in self.effects.keys():
             for n in range(int(i.split()[-1])):
-                self.hp, self.shield, self.atkmult, dmg = effects[
-                    " ".join(i.split()[:-1])
-                ].tick(self.hp, self.shield, self.atkmult, 0, 0)
+                self.hp, self.shield, self.atkmult, dmg = effects[" ".join(i.split()[:-1])].tick(
+                    self.hp, self.shield, self.atkmult, 0, 0
+                )
             self.effects[i] -= 1
             if self.effects[i] <= 0:
                 remove_list.append(i)
@@ -665,9 +662,26 @@ class move:
 
     def tick(self):
         return self.dmg, self.shield, self.hpgain, self.selfeffects, self.effects
+    
+class floor:
+    def __init__(
+        self, enemies, clear_rewards, clear_rewards_amount, description
+    ):
+        self.enemies = enemies
+        self.clear_rewards = clear_rewards
+        self.clear_rewards_amount = clear_rewards_amount
+        self.description = description
 
+class structure:
+    def __init__(
+        self, floors, clear_rewards, clear_rewards_amount
+    ):
+        self.floors = floors
+        self.current_player_floor = 0
+        self.clear_rewards = clear_rewards
+        self.clear_rewards_amount = clear_rewards_amount
 
-# dictionary of effects in the format "name": effect()
+# dictionary of effects in the format "name":effect()
 effects = {
     "healing": healing(),
     "weakening toxin": weakening_toxin(),
@@ -678,12 +692,12 @@ effects = {
     "rage": rage(),
     "irradiated": irradiated(),
     "offbalance": off_balance(),
-    "irradiated frenzy": irradiated_frenzy(),
+    "irradiated frenzy":irradiated_frenzy()
 }
 
-# dictionary of moves in the format "name": move(name, attack, effects inflicted on opponent, shield, health healed, type, effects applied to self, weapons the move is attached to)
+# dictionary of moves in the format "name":move(name, attack, effects inflicted on opponent, shield, health healed, type, effects applied to self, weapons the move is attached to)
 moves = {
-    "delete": move("delete", 100000, {}, 0, 0, "developer", {}, []),
+    "delete":move("delete", 100000, {}, 0, 0, "developer", {}, []),
     "punch": move("punch", 5, {}, 0, 0, "attacking", {}, []),
     "defensive_stance": move("defensive stance", 0, {}, 25, 0, "defending", {}, []),
     "heavy_swing": move(
@@ -826,7 +840,7 @@ moves = {
     ),
 }
 
-# dictionary of items in the format "name": item(name, weight (unused), crafting recipes)
+# dictionary of items in the format "name":item(name, weight (unused), crafting recipes)
 items = {
     "long grass": item("long grass", 2, []),
     "stick": item("stick", 2, []),
@@ -911,7 +925,7 @@ items = {
     ),
 }
 
-# dictionary of weapons in the format of "name": weapon(name, weight, crafting, durability, moves, weapon attack multiplier)
+# dictionary of weapons in the format of "name":weapon(name, weight, crafting, durability, moves, weapon attack multiplier)
 weaponlist = {
     "alpha's blade": weapon(
         "alpha's blade",
@@ -962,11 +976,11 @@ weaponlist = {
     ),
 }
 
-# dictionary of biomes in the format of "name": region(possible search items, description, possible encounters)
+# dictionary of biomes in the format of "name":region(possible search items, description, possible encounters)
 BiomeList = {
     "Grassland": region(
         {"long grass": 30, "stick": 10, "rotting meat": 5, "wolf meat": 3, "stones": 7},
-        "Long grass stretches for miles, many grasses growing up to your knees. Who knows what it could conceal...\n",
+        "Long grass stretches for miles, many grasses growing up to your knees. Who knows what it could conceal...",
         "Grassland",
         {"scavenger": 10, "poisonous lizard": 20, "rich man": 1},
         "The breeze rustles the tall grass.\n",
@@ -982,7 +996,7 @@ BiomeList = {
             "fruit": 10,
             "stones": 8,
         },
-        "The leafy green forest seems almost vibrant against the eternally grey clouds. It seems alluring, too alluring...\n",
+        "The leafy green forest seems almost vibrant against the eternally grey clouds. It seems alluring, too alluring...",
         "Forest",
         {"scavenger": 10, "wolf": 15, "rich man": 1},
         "A lone howl pierces the night.\n",
@@ -990,7 +1004,7 @@ BiomeList = {
     ),
     "Tundra": region(
         {"berries": 10, "elk meat": 5, "stones": 3},
-        "The tundra white seems to almost blend in with the grey sky. Faded green bushes poke out here and there.\n",
+        "The tundra white seems to almost blend in with the grey sky. Faded green bushes poke out here and there.",
         "Tundra",
         {"scavenger": 10, "gaunt man": 20},
         "The wind howls across the barren landscape.\n",
@@ -998,7 +1012,7 @@ BiomeList = {
     ),
     "Nuclear Wasteland": region(
         {"irradiated meat": 10},
-        "It feels unsettling, the radiation there but unfelt. The barren grey earth indicates no vegetation or signs of life.\n\nYour geiger counter's clicks rapidly whirr into a shrill hum.\n",
+        "It feels unsettling, the radiation there but unfelt. The barren grey earth indicates no vegetation or signs of life.\n\nYour geiger counter's clicks rapidly blend into a shrill hum.",
         "Nuclear Wasteland",
         {"mutated wolf": 20, "scavenger": 10, "gaunt man": 5, "mutated monstrosity": 1},
         "The night is eerily quiet.\n",
@@ -1013,7 +1027,7 @@ BiomeList = {
             "branch": 10,
             "stick": 15,
         },
-        "The jungle is thick, bird calls and animal howls echoing underneath the canopy. The lush vegetation obscures sight.\n",
+        "The jungle is thick, bird calls and animal howls echoing underneath the canopy. The lush vegetation obscures sight.",
         "Jungle",
         {"scavenger": 10, "wolf": 30, "wolf pack": 10, "baboon": 5, "monkey": 15},
         "A lone howl pierces the night.\n",
@@ -1021,7 +1035,7 @@ BiomeList = {
     ),
     "Desert": region(
         {"sand": 30, "cactus": 10},
-        "The desert stretches for miles, the once burning sands partially turned to glass from nuclear blasts.\n",
+        "The desert stretches for miles, the once burning sands partially turned to glass from nuclear blasts.",
         "Desert",
         {"scavenger": 10, "gaunt man": 20, "shrivelled husk": 10},
         "The wind howls across the barren landscape.\n",
@@ -1029,7 +1043,7 @@ BiomeList = {
     ),
 }
 
-# list of enemies in the format of "name": enemy(health, moves, move pattern, drops, drop amount)
+# list of enemies in the format of "name":enemy(health, moves, move pattern, drops, drop amount)
 EnemyList = {
     "scavenger": enemy(
         50,
@@ -1249,7 +1263,7 @@ food_values = {
     "cooked rotting meat": 10,
     "elk meat": 30,
     "cooked elk meat": 60,
-    "berries": 5,
+    "berries":5
 }
 
 # dictionary of cookable foods and their cooking times
@@ -1338,6 +1352,7 @@ while Player.hp > 0:
         enemy_facing = EnemyList[encounter_value]
         encounter_done = False
         turns = 0
+        fleeing = False
         input("Fight >> ")
 
         # main fight game loop
@@ -1393,6 +1408,7 @@ while Player.hp > 0:
                         print(f"|  ({effects[i.split()[0]].description})")
                 print("L---->")
                 
+            print(f"flee: escape from the battle")
             # lower status bar
             print(f"|\U00002764: {Player.hp}|\U0001f6e1  {Player.shield} |")
             for i in Player.effects.keys():
@@ -1400,45 +1416,48 @@ while Player.hp > 0:
             
             # player move selection input
             move_input = input("Move number >> ")
-            while move_input not in move_select_ui.keys():
+            while move_input not in move_select_ui.keys() and move_input != "flee":
                 # asks for input again when input is invalid
                 move_input = input("Move number >> ")
             
-            # pulls the details of selected move
-            d, s, h, se, e = move_select_ui[move_input].tick()
+            if move_input == "flee":
+                fleeing = True
+            if not fleeing:
+                # pulls the details of selected move
+                d, s, h, se, e = move_select_ui[move_input].tick()
 
-            # applies shield, health gain, and self applied effects to the player
-            Player.self_turn(s, h, se)
-            os.system("cls" if os.name == "nt" else "clear")
+                # applies shield, health gain, and self applied effects to the player
+                Player.self_turn(s, h, se)
+                os.system("cls" if os.name == "nt" else "clear")
 
-            # displays the effects of the move
-            print(f"You used {move_select_ui[move_input].name}")
-            print(f"You deal {d} damage")
-            print(f"You gain {s} shield")
-            print(f"You heal for {h} health")
+                # displays the effects of the move
+                print(f"You used {move_select_ui[move_input].name}")
+                print(f"You deal {d} damage")
+                print(f"You gain {s} shield")
+                print(f"You heal for {h} health")
 
-            # displays effects gained by player
-            if se != {}:
-                for i in se.keys():
-                    print(f"You gain {i} for {se[i]} turns")
-            
-            # displays effects inflicted on opponent
-            if e != {}:
-                for i in e.keys():
-                    if e[i] == None:
-                        print(f"You inflict {i} on enemy {encounter_value}")
-                    else:
-                        print(
-                            f"You inflict {i} on enemy {encounter_value} for {e[i]} turns"
-                        )
-            input("Press anything to continue >> ")
-            os.system("cls" if os.name == "nt" else "clear")
+                # displays effects gained by player
+                if se != {}:
+                    for i in se.keys():
+                        print(f"You gain {i} for {se[i]} turns")
+                
+                # displays effects inflicted on opponent
+                if e != {}:
+                    for i in e.keys():
+                        if e[i] == None:
+                            print(f"You inflict {i} on enemy {encounter_value}")
+                        else:
+                            print(
+                                f"You inflict {i} on enemy {encounter_value} for {e[i]} turns"
+                            )
+                input("Press anything to continue >> ")
+                os.system("cls" if os.name == "nt" else "clear")
 
-            # inflicts damage and effects on opponent
-            enemy_facing.opp_turn(d, e)
+                # inflicts damage and effects on opponent
+                enemy_facing.opp_turn(d, e)
 
             # pulls details of enemy move
-            d, e, h, s, se, movechosen = enemy_facing.self_turn()
+            d, e, h, s, se, movechosen = enemy_facing.self_turn(fleeing)
             d = int(d * enemy_facing.atkmult)
             dorig = d
             eorig = e
@@ -1449,6 +1468,12 @@ while Player.hp > 0:
 
             # inflicts damage and effects on player
             Player.opp_turn(d, e)
+
+            if fleeing:
+                os.system("cls" if os.name == "nt" else "clear")
+                print(f"You turn your back and flee, letting the {encounter_value} get one last move at your turned back.\n")
+                input("Press anything to continue >> ")
+                os.system("cls" if os.name == "nt" else "clear")
 
             # displays the effects of opponent's turn
             print(f"{encounter_value} used {movechosen}")
@@ -1487,6 +1512,13 @@ while Player.hp > 0:
                     input("Press anything to continue >> ")
                     os.system("cls" if os.name == "nt" else "clear")
                 encounter_done = True
+
+            if fleeing:
+                print("You successfully flee from the battle. ")
+                encounter_done = True
+                input("Press anything to continue >>")
+                os.system("cls" if os.name == "nt" else "clear")
+                enemy_facing.reset()
     
     # ends main game loop early if the player is dead from the encounter
     if Player.hp <= 0:
@@ -1521,34 +1553,24 @@ while Player.hp > 0:
     print(
         f"|\U00002764: {Player.hp}|{Player.hungerbar}|{Player.radiationbar}|{Map.map[Map.playerlocation].name}|\n"
     )
-    
-    # prints status messages
     print(firemessage)
-    print()
     print(temperaturemessage)
+    print(radiationmessage)
 
-    # displays starving message when necessary
+    # displays starving message
     if hungermessage != "":
-        print()
         print(hungermessage)
-
-    # displays radiation poisoning message when necessary
-    if radiationmessage != "":
-        print()
-        print(radiationmessage)
-
-    # player input
     act = input("\n>> ")
-    
     os.system("cls" if os.name == "nt" else "clear")
 
     # player command processing
+    
     # lights the fire
     if act.lower() == "light fire":
         if Fire.dead:
             Fire.light_fire()
             print(
-                f"The light from the fire spills through the {Map.map[Map.playerlocation].name.lower()}, out into the dark.\n"
+                "The light from the fire spills through the forest, out into the dark.\n"
             )
         else:
             continue
@@ -1758,11 +1780,11 @@ while Player.hp > 0:
                     pass
             elif help_mode == "3":
                 print("CHANGELOG")
-                print("Version 1.0.0 - launched game (16/6/25)")
+                print("Version 1.0.0 - launched game (16/6/25)\n")
                 print("Version 1.0.1 - miscellaneous bug fixes and format updates (18/6/25)\n")
-                print("TECHNICAL INFORMATION")
+                print("TECHNICAL INFORMATION\n")
                 print("Version: 1.0.1\n")
-                print("Error reporting: ian.tang3@education.nsw.gov.au or jiayu.hu1@education.nsw.gov.au")
+                print("Error reporting: ian.tang3@education.nsw.gov.au")
                 if "" in input("\n[Any key to go back]"):
                     pass
             else:
@@ -1799,7 +1821,9 @@ while Player.hp > 0:
                 invincibility = False
             else:
                 invincibility = True
-            print(f"Invincibility toggled to {invincibility}. \n")
+            print(f"Invincibility toggled to  {invincibility}. \n")
+
+
 
         elif "summon" in com.lower().split(" ")[0]:
             encounter_value_override = " ".join(com.lower().split(" ")[1:])
