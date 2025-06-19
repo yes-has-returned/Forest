@@ -29,6 +29,7 @@ Release date: TBD
 ### Version 1.0.4
 Release date: TBD
  - Adding a trading system
+ - Adding a way to communicate with other entities
  - Bug fixes and patches
 
 ### Version 1.0.5
