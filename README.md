@@ -25,6 +25,9 @@ pip3 install -r requirements.txt
 ## How to run the game
 Run the [main.py](main.py) file, and play the game in the terminal.
 
+## Help with playing the game
+Type ```help``` into the game commands, and a menu screen will show up. Navigate this according to the instructions provided.
+
 ## Feedback
 As this game is relatively new and hasn't been fully playtested yet, feedback would be greatly appreciated.
 
