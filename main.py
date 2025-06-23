@@ -1872,6 +1872,7 @@ while Player.hp > 0:
             print("You cannot move in that direction.\n")
         else:
             print(Map.map[Map.playerlocation].description)
+            print()
             
     # crafts an item if all materials present, otherwise, returns error statement
     elif "craft" in act.lower().split(" ")[0]:
