@@ -32,3 +32,8 @@ Type ```help``` into the game commands, and a menu screen will show up. Navigate
 As this game is relatively new and hasn't been fully playtested yet, feedback would be greatly appreciated.
 
 To submit feedback, email <ian.tang3@education.nsw.gov.au> or <jiayu.hu1@education.nsw.gov.au>.
+
+## Technical information
+Technical information for game setup, reviews etc.
+### Code Rabbit
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/yes-has-returned/Forest?utm_source=oss&utm_medium=github&utm_campaign=yes-has-returned%2FForest&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
