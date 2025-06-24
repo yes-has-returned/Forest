@@ -84,7 +84,7 @@ class campfire:
                     food = "cooked " + food[0]
                 else:
                     food = "burnt mess"
-        firestatusstr = "The coals are cold."
+        firestatusstr = "The fire is dead."
         died = False
         # returns the fire description based on the fire level
         if int(self.firestatus) in self.firestatusmessages.keys():
@@ -1553,8 +1553,7 @@ while Player.hp > 0:
     print(
         f"|\U00002764: {Player.hp}|{Player.hungerbar}|{Player.radiationbar}|{Map.map[Map.playerlocation].name}|\n"
     )
-    print(firemessage)
-    print(temperaturemessage)
+    print(firemessage, temperaturemessage)
     print(radiationmessage)
 
     # displays starving message
@@ -1604,7 +1603,7 @@ while Player.hp > 0:
     # displays most recent cooking item
     elif act.lower() == "view cooking":
         if Fire.cooking == []:
-            print("Nothing is cooking.")
+            print("Nothing is cooking.\n")
         else:
             print(
                 f"{Fire.cooking[0][0]} will be ready in {Fire.cooking[0][1]} turns.\n"
