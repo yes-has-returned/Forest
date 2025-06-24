@@ -1524,7 +1524,6 @@ while Player.hp > 0:
     if Player.hp <= 0:
         break
     if first_turn == True:
-        print()
         print("Type 'help' for list of commands and tutorial.\n")
     
     # updates the food statuses that are cooking in the fire, updates fire message
