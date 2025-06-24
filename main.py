@@ -747,7 +747,7 @@ moves = {
         ["crude stone axe"],
     ),
     "scavenged_goods": move(
-        "scavenged goods", 0, {}, 10, 5, "healing", {"healing 1": 3}, []
+        "scavenged goods", 0, {}, 5, 5, "healing", {}, []
     ),
     "poisoned_slash": move(
         "poisoned slash", 5, {"poison 2": 2}, 0, 0, "attacking", {}, []
@@ -1395,7 +1395,7 @@ while Player.hp > 0:
                     print("|  --SELF--")
                     for i in se:
                         print(f"|  {i}: {se[i]} turns")
-                        print(f"|  ({effects[i.split()[0]].description})")
+                        print(f"|  ({effects[" ".join(i.split()[:-1])].description})")
                 
                 # display effects applied to opponents by the move
                 if e != {}:
@@ -1405,14 +1405,14 @@ while Player.hp > 0:
                             print(f"|  {i}: instant")
                         else:
                             print(f"|  {i}: {e[i]} turns")
-                        print(f"|  ({effects[i.split()[0]].description})")
+                        print(f"|  ({effects[" ".join(i.split()[:-1])].description})")
                 print("L---->")
                 
             print(f"flee: escape from the battle")
             # lower status bar
             print(f"|\U00002764: {Player.hp}|\U0001f6e1  {Player.shield} |")
             for i in Player.effects.keys():
-                print(f"{i} - {effects[i.split()[0]].description}")
+                print(f"{i} - {effects[" ".join(i.split()[:-1])].description}")
             
             # player move selection input
             move_input = input("Move number >> ")
@@ -1524,6 +1524,7 @@ while Player.hp > 0:
     if Player.hp <= 0:
         break
     if first_turn == True:
+        print()
         print("Type 'help' for list of commands and tutorial.\n")
     
     # updates the food statuses that are cooking in the fire, updates fire message
@@ -1777,7 +1778,7 @@ while Player.hp > 0:
                 if "" in input("\n[Any key to go back]"):
                     pass
             elif help_mode == "3":
-                print("CHANGELOG\n")
+                print("CHANGELOG")
                 print("Version 1.0.0 - launched game (16/6/25)\n")
                 print("Version 1.0.1 - miscellaneous bug fixes and format updates (18/6/25)\n")
                 print("TECHNICAL INFORMATION\n")
