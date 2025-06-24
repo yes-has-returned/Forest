@@ -452,7 +452,7 @@ class enemy:
                 self.move_pattern[self.pattern_position % (len(self.move_pattern))]
             ]
         )
-        if opponent_fleeing == True and "attacking" in self.move_types.keys():
+        if opponent_fleeing == True and self.move_types["attacking"] != []:
             moveselect = choice(self.move_types["attacking"])
 
         # updates health and shield based on the move
@@ -1524,6 +1524,7 @@ while Player.hp > 0:
     if Player.hp <= 0:
         break
     if first_turn == True:
+        print()
         print("Type 'help' for list of commands and tutorial.\n")
     
     # updates the food statuses that are cooking in the fire, updates fire message
