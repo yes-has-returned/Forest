@@ -1777,7 +1777,7 @@ while Player.hp > 0:
                 if "" in input("\n[Any key to go back]"):
                     pass
             elif help_mode == "3":
-                print("CHANGELOG")
+                print("CHANGELOG\n")
                 print("Version 1.0.0 - launched game (16/6/25)\n")
                 print("Version 1.0.1 - miscellaneous bug fixes and format updates (18/6/25)\n")
                 print("TECHNICAL INFORMATION\n")
