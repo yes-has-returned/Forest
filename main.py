@@ -118,18 +118,18 @@ class player:
         self.hungerbar = ""
         self.effects = {}
         self.radiation = 0
-        self.radiationbar = "\U00002622"
+        self.radiationbar = "Radiation:"
         for i in range(math.ceil(self.radiation / 100)):
             self.radiationbar += ">"
         
-        for i in range(11-len(list(self.radiationbar))):
+        for i in range(20-len(list(self.radiationbar))):
             self.radiationbar += "-"
 
-        self.radiationbar += "\U0001F480"
+        self.radiationbar += "X"
 
         # generates the hunger bar
         for i in range(math.ceil(self.hunger / 10)):
-            self.hungerbar += "\U0001f356"
+            self.hungerbar += "O"
            
 
         # generates a message based on player temperature
@@ -189,18 +189,18 @@ class player:
         # updates hunger bar
         self.hungerbar = ""
         for i in range(math.ceil(self.hunger / 10)):
-            self.hungerbar += "\U0001f356"
+            self.hungerbar += "O"
         for i in range(10 - math.ceil(self.hunger / 10)):
-            self.hungerbar += "\U0000274c"
+            self.hungerbar += "X"
 
-        self.radiationbar = "\U00002622"
+        self.radiationbar = "Radiation: "
         for i in range(math.ceil(self.radiation / 100)):
             self.radiationbar += ">"
         
-        for i in range(11-len(list(self.radiationbar))):
+        for i in range(20-len(list(self.radiationbar))):
             self.radiationbar += "-"
 
-        self.radiationbar += "\U0001F480"
+        self.radiationbar += "X"
             
         # returns all values
         return self.temperaturemessage[self.temperature], hungermessage, radiationsicknessmessage
@@ -1362,7 +1362,7 @@ while Player.hp > 0:
             # top status bar
             print(f"--Turn {turns}--")
             print(
-                f"|{encounter_value}|\U00002764: {enemy_facing.hp}|Next move: {enemy_facing.move_pattern[enemy_facing.pattern_position%(len(enemy_facing.move_pattern))]}|"
+                f"|{encounter_value}|Enemy health: {enemy_facing.hp}|Next move: {enemy_facing.move_pattern[enemy_facing.pattern_position%(len(enemy_facing.move_pattern))]}|"
             )
             print("-------------")
 
@@ -1387,7 +1387,7 @@ while Player.hp > 0:
                 )  # name of move and key to press to select move
                 d, s, h, se, e = move_select_ui[i].tick()  # pulls the move's values
                 print(
-                    f"|   \U00002694 {d} | \U0001f6e1 {s} | \U00002764 {h}"
+                    f"| Damage: {d} | Shield: {s} | Recovery: {h}"
                 )  # displays the move's damage, shield, and health gain
 
                 # displays self applied effects by the move
@@ -1410,7 +1410,7 @@ while Player.hp > 0:
                 
             print(f"flee: escape from the battle")
             # lower status bar
-            print(f"|\U00002764: {Player.hp}|\U0001f6e1  {Player.shield} |")
+            print(f"|Health: {Player.hp}|Shield level: {Player.shield} |")
             for i in Player.effects.keys():
                 print(f"{i} - {effects[" ".join(i.split()[:-1])].description}")
             
@@ -1551,7 +1551,7 @@ while Player.hp > 0:
     
     # top status bar
     print(
-        f"|\U00002764: {Player.hp}|{Player.hungerbar}|{Player.radiationbar}|{Map.map[Map.playerlocation].name}|\n"
+        f"|Health: {Player.hp}|{Player.hungerbar}|{Player.radiationbar}|{Map.map[Map.playerlocation].name}|\n"
     )
     print(firemessage, temperaturemessage)
     print(radiationmessage)
