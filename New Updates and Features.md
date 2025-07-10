@@ -15,7 +15,7 @@ Released: 18/06/2025
 ## Future Updates
 
 ### Version 1.0.2
-Release date: 01/07/2025
+Release date: Soon
  - Adding more craftable early-game and mid-game weapons and items
  - Camoflague item??? Lowers chance for mobs to attack you
  - Ability to craft branches and other items
