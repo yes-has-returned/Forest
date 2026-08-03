@@ -1492,7 +1492,7 @@ while Player.hp > 0:
                     elif mechanic_help_mode == "2":
                         print("MATERIALS AND CRAFTING SYSTEM\n")
                         print("This game also has a crafting system. In order to craft weapons and tools, you will first need to find materials.\n")
-                        print("Materials are gained randomly when searching, with different materials for different biomes.\n)
+                        print("Materials are gained randomly when searching, with different materials for different biomes.\n")
                         print("In order to know which materials correspond to which biomes, visit [5]: Biomes, loot tables, and encounter values.\n")
                         print("You can view the different crafting recipes available, and once you have enough materials, you can begin crafting.")
                         if "" in input("\n[Any key to go back]"):
