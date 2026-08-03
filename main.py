@@ -2,7 +2,6 @@ import os
 import math
 from random import choice, randint
 
-
 # class for each region or biome of a map, encompassing its information
 class region:
     def __init__(self, loot_table, description, name, entity_encounters, background_message, radiation):
@@ -239,7 +238,6 @@ class player:
                         )
 
     def tick(self):
-        
         # ticks all effects on the player, reducing the duration of all of them by 1, any effects with a duration of 0 are added to the remove list
         remove_list = []
         for i in self.effects.keys():
@@ -467,12 +465,7 @@ class enemy:
         
         # returns all values of the move
         return (
-            moveselect.dmg,
-            moveselect.effects,
-            moveselect.hpgain,
-            moveselect.shield,
-            moveselect.selfeffects,
-            moveselect.name,
+            moveselect.dmg, moveselect.effects, moveselect.hpgain, moveselect.shield, moveselect.selfeffects, moveselect.name,
         )
 
     def tick(self):
@@ -513,7 +506,6 @@ class effect:
         self.name = name
         self.description = description
 
-
 class rage(effect):
     def __init__(self):
         super().__init__(
@@ -551,7 +543,6 @@ class poison(effect):
         # entity loses 5 health a turn
         entityhp -= 5
         return entityhp, entityshield, entityatkmult, dmg
-
 
 class bludgeoning(effect):
     def __init__(self):
@@ -683,16 +674,7 @@ class structure:
 
 # dictionary of effects in the format "name":effect()
 effects = {
-    "healing": healing(),
-    "weakening toxin": weakening_toxin(),
-    "piercing": piercing(),
-    "bludgeoning": bludgeoning(),
-    "poison": poison(),
-    "raise guard": raise_guard(),
-    "rage": rage(),
-    "irradiated": irradiated(),
-    "offbalance": off_balance(),
-    "irradiated frenzy":irradiated_frenzy()
+    "healing": healing(), "weakening toxin": weakening_toxin(), "piercing": piercing(), "bludgeoning": bludgeoning(), "poison": poison(), "raise guard": raise_guard(), "rage": rage(), "irradiated": irradiated(), "offbalance": off_balance(), "irradiated frenzy":irradiated_frenzy()
 }
 
 # dictionary of moves in the format "name":move(name, attack, effects inflicted on opponent, shield, health healed, type, effects applied to self, weapons the move is attached to)
@@ -700,32 +682,10 @@ moves = {
     "delete":move("delete", 100000, {}, 0, 0, "developer", {}, []),
     "punch": move("punch", 5, {}, 0, 0, "attacking", {}, []),
     "defensive_stance": move("defensive stance", 0, {}, 25, 0, "defending", {}, []),
-    "heavy_swing": move(
-        "heavy swing",
-        10,
-        {"bludgeoning 1": None},
-        0,
-        0,
-        "attacking",
-        {"raise guard 2": 2},
-        [],
-    ),
-    "light_swing": move(
-        "light swing",
-        5,
-        {"bludgeoning 1": None},
-        0,
-        0,
-        "attacking",
-        {"raise guard 1": 2},
-        [],
-    ),
-    "stab": move(
-        "stab", 5, {"piercing 1": None}, 0, 0, "attacking", {}, ["sharpened stick"]
-    ),
-    "bash": move(
-        "bash", 2, {"piercing 1": None}, 0, 0, "attacking", {}, ["sharpened stone"]
-    ),
+    "heavy_swing": move("heavy swing", 10, {"bludgeoning 1": None}, 0, 0, "attacking", {"raise guard 2": 2}, [],),
+    "light_swing": move("light swing", 5, {"bludgeoning 1": None}, 0, 0, "attacking", {"raise guard 1": 2}, [],),
+    "stab": move("stab", 5, {"piercing 1": None}, 0, 0, "attacking", {}, ["sharpened stick"]),
+    "bash": move("bash", 2, {"piercing 1": None}, 0, 0, "attacking", {}, ["sharpened stone"]),
     "side_slash": move(
         "slide slash",
         5,
@@ -758,47 +718,11 @@ moves = {
     "struggle": move("struggle", 0, {}, 0, 0, "special", {}, []),
     "added_padding": move("added padding", 0, {}, 50, 0, "defending", {}, []),
     "bite": move("bite", 10, {"bludgeoning 1": None}, 0, 0, "attacking", {}, []),
-    "radioactive_bite": move(
-        "radioactive bite",
-        10,
-        {"bludgeoning 1": None, "irradiated 2": 2},
-        0,
-        0,
-        "attacking",
-        {"irradiated frenzy 1": 3},
-        [],
-    ),
-    "irradiated_reinforcement": move(
-        "irradiated reinforcement",
-        0,
-        {},
-        30,
-        0,
-        "defending",
-        {"irradiated frenzy 2": None},
-        [],
-    ),
+    "radioactive_bite": move("radioactive bite",10,{"bludgeoning 1": None, "irradiated 2": 2},0,0,"attacking",{"irradiated frenzy 1": 3},[],),
+    "irradiated_reinforcement": move("irradiated reinforcement",0,{},30,0,"defending",{"irradiated frenzy 2": None},[],),
     "howl": move("howl", 0, {}, 0, 0, "special", {"rage 2": 2}, []),
-    "piercing_round": move(
-        "piercing round",
-        30,
-        {"piercing 1": None},
-        0,
-        0,
-        "attacking",
-        {"rage 2": 2},
-        ["gold plated glock"],
-    ),
-    "miniaturised_shotgun_round": move(
-        "miniaturised shotgun round",
-        50,
-        {"bludgeoning 1": None},
-        0,
-        0,
-        "attacking",
-        {"rage 2": 2},
-        ["gold plated glock"],
-    ),
+    "piercing_round": move("piercing round",30,{"piercing 1": None},0,0,"attacking",{"rage 2": 2},["gold plated glock"],),
+    "miniaturised_shotgun_round": move("miniaturised shotgun round",50,{"bludgeoning 1": None},0,0,"attacking",{"rage 2": 2},["gold plated glock"],),
     "gun_slinger's_stance": move(
         "gun slinger's stance",
         0,
@@ -1063,110 +987,7 @@ EnemyList = {
         500,
         [moves["struggle"], moves["added_padding"]],
         ["defending", "special", "special", "special", "special"],
-        [
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold coin",
-            "gold plated glock",
-        ],
-        23,
+        [*("gold coin" for i in range(100)), "gold plated glock",],23,
     ),
     "wolf": enemy(
         25,
@@ -1660,58 +1481,30 @@ while Player.hp > 0:
                     os.system("cls" if os.name == "nt" else "clear")
                     if mechanic_help_mode == "1":
                         print("STATUS BAR\n")
-                        print(
-                            "The status bar at the top of your screen gives you vital information to stay alive. It is split into a couple main components:\n"
-                        )
-                        print(
-                            "1. Your health is at the very top right. It displays as a heart symbol and then a number out of 100. When you reach 0 health, the game ends.\n"
-                        )
-                        print(
-                            "2. The hunger bar is second from the left. It displays how much hunger you have left. Eat food to replenish your hunger.\nGet too low, and you will start to starve, taking damage.\n"
-                        )
-                        print(
-                            "3. The radiation bar is third from the left. It displays the dose of radiation you have recieved so far. When it reaches dangerously high levels, you will begin to take damage.\n"
-                        )
-                        print(
-                            "4. The biome you're currently in is at the top right of the status bar. The biome determines what drops and encounters you will find.\nTo learn more, visit [5]: Biomes, loot tables, and encounter values."
-                        )
+                        print("The status bar at the top of your screen gives you vital information to stay alive. It is split into a couple main components:\n")
+                        print("1. Your health is at the very top right. It displays as a heart symbol and then a number out of 100. When you reach 0 health, the game ends.\n")
+                        print("2. The hunger bar is second from the left. It displays how much hunger you have left. Eat food to replenish your hunger.\nGet too low, and you will start to starve, taking damage.\n")
+                        print("3. The radiation bar is third from the left. It displays the dose of radiation you have recieved so far. When it reaches dangerously high levels, you will begin to take damage.\n")
+                        print("4. The biome you're currently in is at the top right of the status bar. The biome determines what drops and encounters you will find.\nTo learn more, visit [5]: Biomes, loot tables, and encounter values.")
                         if "" in input("\n[Any key to go back]"):
                             help_mode = "1"
                             break
                     elif mechanic_help_mode == "2":
                         print("MATERIALS AND CRAFTING SYSTEM\n")
-                        print(
-                            "This game also has a crafting system. In order to craft weapons and tools, you will first need to find materials.\n"
-                        )
-                        print(
-                            "Materials are gained randomly when searching, with different materials for different biomes.\n"
-                        )
-                        print(
-                            "In order to know which materials correspond to which biomes, visit [5]: Biomes, loot tables, and encounter values.\n"
-                        )
-                        print(
-                            "You can view the different crafting recipes available, and once you have enough materials, you can begin crafting."
-                        )
+                        print("This game also has a crafting system. In order to craft weapons and tools, you will first need to find materials.\n")
+                        print("Materials are gained randomly when searching, with different materials for different biomes.\n)
+                        print("In order to know which materials correspond to which biomes, visit [5]: Biomes, loot tables, and encounter values.\n")
+                        print("You can view the different crafting recipes available, and once you have enough materials, you can begin crafting.")
                         if "" in input("\n[Any key to go back]"):
                             help_mode = "1"
                             break
                     elif mechanic_help_mode == "3":
                         print("WEAPONS, COMBAT, MOVES, AND EFFECTS\n")
-                        print(
-                            "Along your travels, you may encounter different enemies, ranging from scavengers to mutated monstrosities.\n"
-                        )
-                        print(
-                            "These will randomly appear every turn, and will enter into a turn based combat system.\n"
-                        )
-                        print(
-                            "For each turn, you will perform an available move, and then the enemy will. Unlock more moves by crafting new weapons.\n"
-                        )
-                        print(
-                            "Each move will deal a certain amount of damage, heal for a certain amount, and grant shield.\n"
-                        )
-                        print(
-                            "Enemies will also drop loot once defeated. Some drop common loot you can find by searching, but others drop items necessary to craft powerful weapons."
-                        )
+                        print("Along your travels, you may encounter different enemies, ranging from scavengers to mutated monstrosities.\n")
+                        print("These will randomly appear every turn, and will enter into a turn based combat system.\n")
+                        print("For each turn, you will perform an available move, and then the enemy will. Unlock more moves by crafting new weapons.\n")
+                        print("Each move will deal a certain amount of damage, heal for a certain amount, and grant shield.\n")
+                        print("Enemies will also drop loot once defeated. Some drop common loot you can find by searching, but others drop items necessary to craft powerful weapons.")
                         if "" in input("\n[Any key to go back]"):
                             help_mode = "1"
                             break
@@ -1763,18 +1556,10 @@ while Player.hp > 0:
                 print("{ view inventory } - view player inventory\n")
                 print("{ view cooking } - view most recent cooking item\n")
                 print("{ view crafting recipes } - views unlocked crafting recipes\n")
-                print(
-                    "{ eat [item] } - eats the specified item (only edible items will be successfully eaten.)\n"
-                )
-                print(
-                    "{ cook [item] } - cooks the specified item (only cookable items will be succesfully cooked.)\n"
-                )
-                print(
-                    "{ move [direction] } - moves in specified direction (accepts 'up', 'down', 'left', 'right', 'north', 'south', 'east', 'west'.)\n"
-                )
-                print(
-                    "{ craft [item] } - crafts the specified item (will only craft if there are enough materials in player inventory.)"
-                )
+                print("{ eat [item] } - eats the specified item (only edible items will be successfully eaten.)\n")
+                print("{ cook [item] } - cooks the specified item (only cookable items will be succesfully cooked.)\n")
+                print("{ move [direction] } - moves in specified direction (accepts 'up', 'down', 'left', 'right', 'north', 'south', 'east', 'west'.)\n")
+                print("{ craft [item] } - crafts the specified item (will only craft if there are enough materials in player inventory.)")
                 if "" in input("\n[Any key to go back]"):
                     pass
             elif help_mode == "3":
@@ -1799,7 +1584,6 @@ while Player.hp > 0:
         elif com == "toggle deletion":
             if deletemode == True:
                 deletemode = False
-
             else:
                 deletemode = True
 
@@ -1821,8 +1605,6 @@ while Player.hp > 0:
             else:
                 invincibility = True
             print(f"Invincibility toggled to  {invincibility}. \n")
-
-
 
         elif "summon" in com.lower().split(" ")[0]:
             encounter_value_override = " ".join(com.lower().split(" ")[1:])
